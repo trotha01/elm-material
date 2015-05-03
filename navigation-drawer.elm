@@ -34,7 +34,6 @@ pages : List Page
 pages = [ helloWorld, stuff]
 
 
-
 -- INPUTS
 action : Signal.Mailbox Action
 action =
