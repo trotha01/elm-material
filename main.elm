@@ -7,32 +7,28 @@ import Text exposing (fromString)
 import Maybe exposing (Maybe)
 import List
 
-import Debug
-
-import Material exposing (Page, Pages, navigationDrawer)
+import Material exposing (Page, Pages)
 
 main : Signal Element
 main = action.signal
-  |> Signal.foldp update (MainView helloWorld.content)
+  |> Signal.foldp update (MainView helloWorld)
   |> Signal.map2 view Window.dimensions
-  |> Debug.watch "action.signal"
 
 -- MODEL
 type State
-    = MainView Element
-    | NavBar Element
-
+    = MainView Page
+    | NavBar Page
 
 helloWorld : Page
 helloWorld =
   { content = G.centered (fromString "Hello World")
-  , title = "helloWorld page"                                                                                                             
+  , title = "Material Design Sample"
   }
 
 stuff : Page
 stuff =
-  { content = G.centered (fromString "Stuff")
-  , title = "stuff page"
+  { content = G.centered (fromString "Nothin` here yet")
+  , title = "Components"
   }
 
 pages : Pages
@@ -51,32 +47,34 @@ body : (Int, Int) -> Element -> Element
 body (w, h) content =
   G.container w h G.middle content
 
+toolbar : Int -> String -> Element
+toolbar w title =
+    Material.toolbar (w, 180) title (Signal.message action.address Material.OpenNavDrawer)
+
 view : (Int, Int) -> State -> Element
 view (w, h) state =
     case state of
-        MainView content -> G.flow G.down
-          [ Material.toolbar (w, 180) "Title" (Signal.message action.address Material.OpenNavDrawer)
-          , body (w, (h-180)) content
+        MainView page -> G.flow G.down
+          [ toolbar w page.title
+          , body (w, 180) page.content
           ]
-          |> Debug.log "view mainview"
-        NavBar content -> G.layers
+        NavBar page -> G.layers
           [ G.flow G.down
-              [ Material.toolbar (w, 180) "Title" (Signal.message action.address Material.OpenNavDrawer)
-              , body (w, (h-180)) content
+              [ toolbar w page.title
+              , body (w, 180) page.content
               ]
-          , navigationDrawer w h pages action.address
+          , Material.navigationDrawer (w, h) pages action.address
           ]
-          |> Debug.log "view navBar"
 
 -- UPDATE
 
 update : Material.Action -> State -> State
 update action state =
-  let content =
+  let page =
     case state of
-      MainView c -> c
-      NavBar c -> c
+      MainView p -> p
+      NavBar p -> p
   in case action of
-    Material.OpenNavDrawer -> NavBar content
-    Material.CloseNavDrawer (Just newContent) -> MainView newContent 
-    Material.CloseNavDrawer (Nothing) -> MainView content
+    Material.OpenNavDrawer -> NavBar page
+    Material.CloseNavDrawer (Just page) -> MainView page
+    Material.CloseNavDrawer (Nothing) -> MainView page

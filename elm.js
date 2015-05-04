@@ -1940,7 +1940,6 @@ Elm.Main.make = function (_elm) {
    _L = _N.List.make(_elm),
    $moduleName = "Main",
    $Basics = Elm.Basics.make(_elm),
-   $Debug = Elm.Debug.make(_elm),
    $Graphics$Element = Elm.Graphics.Element.make(_elm),
    $Material = Elm.Material.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
@@ -1958,16 +1957,25 @@ Elm.Main.make = function (_elm) {
               $Graphics$Element.middle,
               content);}
          _U.badCase($moduleName,
-         "on line 52, column 3 to 35");
+         "on line 48, column 3 to 35");
       }();
    });
    var action = $Signal.mailbox($Material.OpenNavDrawer);
+   var toolbar = F2(function (w,
+   title) {
+      return A3($Material.toolbar,
+      {ctor: "_Tuple2",_0: w,_1: 180},
+      title,
+      A2($Signal.message,
+      action.address,
+      $Material.OpenNavDrawer));
+   });
    var stuff = {_: {}
-               ,content: $Graphics$Element.centered($Text.fromString("Stuff"))
-               ,title: "stuff page"};
+               ,content: $Graphics$Element.centered($Text.fromString("Nothin` here yet"))
+               ,title: "Components"};
    var helloWorld = {_: {}
                     ,content: $Graphics$Element.centered($Text.fromString("Hello World"))
-                    ,title: "helloWorld page"};
+                    ,title: "Material Design Sample"};
    var pages = _L.fromArray([helloWorld
                             ,stuff]);
    var view = F2(function (_v4,
@@ -1978,47 +1986,38 @@ Elm.Main.make = function (_elm) {
             return function () {
                  switch (state.ctor)
                  {case "MainView":
-                    return $Debug.log("view mainview")(A2($Graphics$Element.flow,
+                    return A2($Graphics$Element.flow,
                       $Graphics$Element.down,
-                      _L.fromArray([A3($Material.toolbar,
-                                   {ctor: "_Tuple2"
-                                   ,_0: _v4._0
-                                   ,_1: 180},
-                                   "Title",
-                                   A2($Signal.message,
-                                   action.address,
-                                   $Material.OpenNavDrawer))
+                      _L.fromArray([A2(toolbar,
+                                   _v4._0,
+                                   state._0.title)
                                    ,A2(body,
                                    {ctor: "_Tuple2"
                                    ,_0: _v4._0
-                                   ,_1: _v4._1 - 180},
-                                   state._0)])));
+                                   ,_1: 180},
+                                   state._0.content)]));
                     case "NavBar":
-                    return $Debug.log("view navBar")($Graphics$Element.layers(_L.fromArray([A2($Graphics$Element.flow,
-                                                                                           $Graphics$Element.down,
-                                                                                           _L.fromArray([A3($Material.toolbar,
-                                                                                                        {ctor: "_Tuple2"
-                                                                                                        ,_0: _v4._0
-                                                                                                        ,_1: 180},
-                                                                                                        "Title",
-                                                                                                        A2($Signal.message,
-                                                                                                        action.address,
-                                                                                                        $Material.OpenNavDrawer))
-                                                                                                        ,A2(body,
-                                                                                                        {ctor: "_Tuple2"
-                                                                                                        ,_0: _v4._0
-                                                                                                        ,_1: _v4._1 - 180},
-                                                                                                        state._0)]))
-                                                                                           ,A4($Material.navigationDrawer,
-                                                                                           _v4._0,
-                                                                                           _v4._1,
-                                                                                           pages,
-                                                                                           action.address)])));}
+                    return $Graphics$Element.layers(_L.fromArray([A2($Graphics$Element.flow,
+                                                                 $Graphics$Element.down,
+                                                                 _L.fromArray([A2(toolbar,
+                                                                              _v4._0,
+                                                                              state._0.title)
+                                                                              ,A2(body,
+                                                                              {ctor: "_Tuple2"
+                                                                              ,_0: _v4._0
+                                                                              ,_1: 180},
+                                                                              state._0.content)]))
+                                                                 ,A3($Material.navigationDrawer,
+                                                                 {ctor: "_Tuple2"
+                                                                 ,_0: _v4._0
+                                                                 ,_1: _v4._1},
+                                                                 pages,
+                                                                 action.address)]));}
                  _U.badCase($moduleName,
-                 "between lines 56 and 69");
+                 "between lines 56 and 67");
               }();}
          _U.badCase($moduleName,
-         "between lines 56 and 69");
+         "between lines 56 and 67");
       }();
    });
    var NavBar = function (a) {
@@ -2032,13 +2031,13 @@ Elm.Main.make = function (_elm) {
    var update = F2(function (action,
    state) {
       return function () {
-         var content = function () {
+         var page = function () {
             switch (state.ctor)
             {case "MainView":
                return state._0;
                case "NavBar": return state._0;}
             _U.badCase($moduleName,
-            "between lines 76 and 79");
+            "between lines 74 and 77");
          }();
          return function () {
             switch (action.ctor)
@@ -2047,20 +2046,20 @@ Elm.Main.make = function (_elm) {
                  {case "Just":
                     return MainView(action._0._0);
                     case "Nothing":
-                    return MainView(content);}
+                    return MainView(page);}
                  break;
                case "OpenNavDrawer":
-               return NavBar(content);}
+               return NavBar(page);}
             _U.badCase($moduleName,
-            "between lines 79 and 82");
+            "between lines 77 and 80");
          }();
       }();
    });
-   var main = $Debug.watch("action.signal")(A2($Signal.map2,
+   var main = A2($Signal.map2,
    view,
    $Window.dimensions)(A2($Signal.foldp,
    update,
-   MainView(helloWorld.content))(action.signal)));
+   MainView(helloWorld))(action.signal));
    _elm.Main.values = {_op: _op
                       ,main: main
                       ,MainView: MainView
@@ -2070,6 +2069,7 @@ Elm.Main.make = function (_elm) {
                       ,pages: pages
                       ,action: action
                       ,body: body
+                      ,toolbar: toolbar
                       ,view: view
                       ,update: update};
    return _elm.Main.values;
@@ -2097,12 +2097,19 @@ Elm.Material.make = function (_elm) {
                                  ,$Maybe.Just(50)]],
    $Text.defaultStyle);
    var title = function (string) {
-      return $Graphics$Element.centered($Text.style(headerStyle)($Text.fromString(string)));
+      return $Graphics$Element.leftAligned($Text.style(headerStyle)($Text.fromString(string)));
    };
+   var lTitleSize = 112;
+   var lIconRowHeight = 56;
+   var lTitleMarginBottom = 16;
+   var lToolbarMarginLeft = 16;
+   var lToolbarHeight = 128;
+   var toolbarIconSize = 24;
    var hamburger = A3($Graphics$Element.image,
-   60,
-   60,
+   toolbarIconSize,
+   toolbarIconSize,
    "hamburger.svg");
+   var lTitleMarginLeft = 72 - lToolbarMarginLeft - toolbarIconSize;
    var toolbar = F3(function (_v0,
    string,
    message) {
@@ -2111,22 +2118,33 @@ Elm.Material.make = function (_elm) {
          {case "_Tuple2":
             return $Graphics$Element.color($Color.green)(A4($Graphics$Element.container,
               _v0._0,
-              _v0._1,
+              lToolbarHeight,
               $Graphics$Element.midLeft,
               A2($Graphics$Element.flow,
               $Graphics$Element.right,
               _L.fromArray([A2($Graphics$Element.spacer,
-                           60,
+                           lToolbarMarginLeft,
                            1)
                            ,$Graphics$Input.clickable(message)(hamburger)
                            ,A2($Graphics$Element.spacer,
-                           180,
+                           lTitleMarginLeft,
                            1)
                            ,title(string)]))));}
          _U.badCase($moduleName,
-         "between lines 51 and 60");
+         "between lines 83 and 92");
       }();
    });
+   var scrim = function (_v4) {
+      return function () {
+         switch (_v4.ctor)
+         {case "_Tuple2":
+            return $Graphics$Element.opacity(0.5)($Graphics$Element.color($Color.black)(A2($Graphics$Element.spacer,
+              _v4._0,
+              _v4._1)));}
+         _U.badCase($moduleName,
+         "between lines 34 and 36");
+      }();
+   };
    var CloseNavDrawer = function (a) {
       return {ctor: "CloseNavDrawer"
              ,_0: a};
@@ -2135,28 +2153,39 @@ Elm.Material.make = function (_elm) {
    page) {
       return $Graphics$Input.clickable(A2($Signal.message,
       address,
-      CloseNavDrawer($Maybe.Just(page.content))))(A4($Graphics$Element.container,
+      CloseNavDrawer($Maybe.Just(page))))(A4($Graphics$Element.container,
       340,
       100,
       $Graphics$Element.middle,
-      page.content));
+      $Graphics$Element.centered($Text.fromString(page.title))));
    });
-   var navigationDrawer = F4(function (width,
-   height,
+   var drawerOptions = F2(function (address,
+   pages) {
+      return $Graphics$Element.color($Color.white)(A2($Graphics$Element.flow,
+      $Graphics$Element.down,
+      A2($List.map,
+      drawerOption(address),
+      pages)));
+   });
+   var navigationDrawer = F3(function (_v8,
    pages,
    address) {
-      return A2($Graphics$Element.flow,
-      $Graphics$Element.right,
-      _L.fromArray([$Graphics$Element.color($Color.white)(A2($Graphics$Element.flow,
-                   $Graphics$Element.down,
-                   A2($List.map,
-                   drawerOption(address),
-                   pages)))
-                   ,$Graphics$Input.clickable(A2($Signal.message,
-                   address,
-                   CloseNavDrawer($Maybe.Nothing)))($Graphics$Element.opacity(0.5)($Graphics$Element.color($Color.black)(A2($Graphics$Element.spacer,
-                   width,
-                   height))))]));
+      return function () {
+         switch (_v8.ctor)
+         {case "_Tuple2":
+            return A2($Graphics$Element.flow,
+              $Graphics$Element.right,
+              _L.fromArray([A2(drawerOptions,
+                           address,
+                           pages)
+                           ,$Graphics$Input.clickable(A2($Signal.message,
+                           address,
+                           CloseNavDrawer($Maybe.Nothing)))(scrim({ctor: "_Tuple2"
+                                                                  ,_0: _v8._0
+                                                                  ,_1: _v8._1}))]));}
+         _U.badCase($moduleName,
+         "between lines 44 and 48");
+      }();
    });
    var OpenNavDrawer = {ctor: "OpenNavDrawer"};
    var Page = F2(function (a,b) {
@@ -2168,9 +2197,18 @@ Elm.Material.make = function (_elm) {
                           ,Page: Page
                           ,OpenNavDrawer: OpenNavDrawer
                           ,CloseNavDrawer: CloseNavDrawer
-                          ,hamburger: hamburger
                           ,drawerOption: drawerOption
+                          ,drawerOptions: drawerOptions
+                          ,scrim: scrim
                           ,navigationDrawer: navigationDrawer
+                          ,toolbarIconSize: toolbarIconSize
+                          ,hamburger: hamburger
+                          ,lToolbarHeight: lToolbarHeight
+                          ,lToolbarMarginLeft: lToolbarMarginLeft
+                          ,lTitleMarginLeft: lTitleMarginLeft
+                          ,lTitleMarginBottom: lTitleMarginBottom
+                          ,lIconRowHeight: lIconRowHeight
+                          ,lTitleSize: lTitleSize
                           ,toolbar: toolbar
                           ,headerStyle: headerStyle
                           ,title: title};

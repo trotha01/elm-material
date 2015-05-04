@@ -21,12 +21,19 @@ Elm.Material.make = function (_elm) {
                                  ,$Maybe.Just(50)]],
    $Text.defaultStyle);
    var title = function (string) {
-      return $Graphics$Element.centered($Text.style(headerStyle)($Text.fromString(string)));
+      return $Graphics$Element.leftAligned($Text.style(headerStyle)($Text.fromString(string)));
    };
+   var lTitleSize = 112;
+   var lIconRowHeight = 56;
+   var lTitleMarginBottom = 16;
+   var lToolbarMarginLeft = 16;
+   var lToolbarHeight = 128;
+   var toolbarIconSize = 24;
    var hamburger = A3($Graphics$Element.image,
-   60,
-   60,
+   toolbarIconSize,
+   toolbarIconSize,
    "hamburger.svg");
+   var lTitleMarginLeft = 72 - lToolbarMarginLeft - toolbarIconSize;
    var toolbar = F3(function (_v0,
    string,
    message) {
@@ -35,22 +42,33 @@ Elm.Material.make = function (_elm) {
          {case "_Tuple2":
             return $Graphics$Element.color($Color.green)(A4($Graphics$Element.container,
               _v0._0,
-              _v0._1,
+              lToolbarHeight,
               $Graphics$Element.midLeft,
               A2($Graphics$Element.flow,
               $Graphics$Element.right,
               _L.fromArray([A2($Graphics$Element.spacer,
-                           60,
+                           lToolbarMarginLeft,
                            1)
                            ,$Graphics$Input.clickable(message)(hamburger)
                            ,A2($Graphics$Element.spacer,
-                           180,
+                           lTitleMarginLeft,
                            1)
                            ,title(string)]))));}
          _U.badCase($moduleName,
-         "between lines 51 and 60");
+         "between lines 83 and 92");
       }();
    });
+   var scrim = function (_v4) {
+      return function () {
+         switch (_v4.ctor)
+         {case "_Tuple2":
+            return $Graphics$Element.opacity(0.5)($Graphics$Element.color($Color.black)(A2($Graphics$Element.spacer,
+              _v4._0,
+              _v4._1)));}
+         _U.badCase($moduleName,
+         "between lines 34 and 36");
+      }();
+   };
    var CloseNavDrawer = function (a) {
       return {ctor: "CloseNavDrawer"
              ,_0: a};
@@ -59,28 +77,39 @@ Elm.Material.make = function (_elm) {
    page) {
       return $Graphics$Input.clickable(A2($Signal.message,
       address,
-      CloseNavDrawer($Maybe.Just(page.content))))(A4($Graphics$Element.container,
+      CloseNavDrawer($Maybe.Just(page))))(A4($Graphics$Element.container,
       340,
       100,
       $Graphics$Element.middle,
-      page.content));
+      $Graphics$Element.centered($Text.fromString(page.title))));
    });
-   var navigationDrawer = F4(function (width,
-   height,
+   var drawerOptions = F2(function (address,
+   pages) {
+      return $Graphics$Element.color($Color.white)(A2($Graphics$Element.flow,
+      $Graphics$Element.down,
+      A2($List.map,
+      drawerOption(address),
+      pages)));
+   });
+   var navigationDrawer = F3(function (_v8,
    pages,
    address) {
-      return A2($Graphics$Element.flow,
-      $Graphics$Element.right,
-      _L.fromArray([$Graphics$Element.color($Color.white)(A2($Graphics$Element.flow,
-                   $Graphics$Element.down,
-                   A2($List.map,
-                   drawerOption(address),
-                   pages)))
-                   ,$Graphics$Input.clickable(A2($Signal.message,
-                   address,
-                   CloseNavDrawer($Maybe.Nothing)))($Graphics$Element.opacity(0.5)($Graphics$Element.color($Color.black)(A2($Graphics$Element.spacer,
-                   width,
-                   height))))]));
+      return function () {
+         switch (_v8.ctor)
+         {case "_Tuple2":
+            return A2($Graphics$Element.flow,
+              $Graphics$Element.right,
+              _L.fromArray([A2(drawerOptions,
+                           address,
+                           pages)
+                           ,$Graphics$Input.clickable(A2($Signal.message,
+                           address,
+                           CloseNavDrawer($Maybe.Nothing)))(scrim({ctor: "_Tuple2"
+                                                                  ,_0: _v8._0
+                                                                  ,_1: _v8._1}))]));}
+         _U.badCase($moduleName,
+         "between lines 44 and 48");
+      }();
    });
    var OpenNavDrawer = {ctor: "OpenNavDrawer"};
    var Page = F2(function (a,b) {
@@ -92,9 +121,18 @@ Elm.Material.make = function (_elm) {
                           ,Page: Page
                           ,OpenNavDrawer: OpenNavDrawer
                           ,CloseNavDrawer: CloseNavDrawer
-                          ,hamburger: hamburger
                           ,drawerOption: drawerOption
+                          ,drawerOptions: drawerOptions
+                          ,scrim: scrim
                           ,navigationDrawer: navigationDrawer
+                          ,toolbarIconSize: toolbarIconSize
+                          ,hamburger: hamburger
+                          ,lToolbarHeight: lToolbarHeight
+                          ,lToolbarMarginLeft: lToolbarMarginLeft
+                          ,lTitleMarginLeft: lTitleMarginLeft
+                          ,lTitleMarginBottom: lTitleMarginBottom
+                          ,lIconRowHeight: lIconRowHeight
+                          ,lTitleSize: lTitleSize
                           ,toolbar: toolbar
                           ,headerStyle: headerStyle
                           ,title: title};

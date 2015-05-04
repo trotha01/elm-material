@@ -10,7 +10,6 @@ Elm.Main.make = function (_elm) {
    _L = _N.List.make(_elm),
    $moduleName = "Main",
    $Basics = Elm.Basics.make(_elm),
-   $Debug = Elm.Debug.make(_elm),
    $Graphics$Element = Elm.Graphics.Element.make(_elm),
    $Material = Elm.Material.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
@@ -28,16 +27,25 @@ Elm.Main.make = function (_elm) {
               $Graphics$Element.middle,
               content);}
          _U.badCase($moduleName,
-         "on line 52, column 3 to 35");
+         "on line 48, column 3 to 35");
       }();
    });
    var action = $Signal.mailbox($Material.OpenNavDrawer);
+   var toolbar = F2(function (w,
+   title) {
+      return A3($Material.toolbar,
+      {ctor: "_Tuple2",_0: w,_1: 180},
+      title,
+      A2($Signal.message,
+      action.address,
+      $Material.OpenNavDrawer));
+   });
    var stuff = {_: {}
-               ,content: $Graphics$Element.centered($Text.fromString("Stuff"))
-               ,title: "stuff page"};
+               ,content: $Graphics$Element.centered($Text.fromString("Nothin` here yet"))
+               ,title: "Components"};
    var helloWorld = {_: {}
                     ,content: $Graphics$Element.centered($Text.fromString("Hello World"))
-                    ,title: "helloWorld page"};
+                    ,title: "Material Design Sample"};
    var pages = _L.fromArray([helloWorld
                             ,stuff]);
    var view = F2(function (_v4,
@@ -48,47 +56,38 @@ Elm.Main.make = function (_elm) {
             return function () {
                  switch (state.ctor)
                  {case "MainView":
-                    return $Debug.log("view mainview")(A2($Graphics$Element.flow,
+                    return A2($Graphics$Element.flow,
                       $Graphics$Element.down,
-                      _L.fromArray([A3($Material.toolbar,
-                                   {ctor: "_Tuple2"
-                                   ,_0: _v4._0
-                                   ,_1: 180},
-                                   "Title",
-                                   A2($Signal.message,
-                                   action.address,
-                                   $Material.OpenNavDrawer))
+                      _L.fromArray([A2(toolbar,
+                                   _v4._0,
+                                   state._0.title)
                                    ,A2(body,
                                    {ctor: "_Tuple2"
                                    ,_0: _v4._0
-                                   ,_1: _v4._1 - 180},
-                                   state._0)])));
+                                   ,_1: 180},
+                                   state._0.content)]));
                     case "NavBar":
-                    return $Debug.log("view navBar")($Graphics$Element.layers(_L.fromArray([A2($Graphics$Element.flow,
-                                                                                           $Graphics$Element.down,
-                                                                                           _L.fromArray([A3($Material.toolbar,
-                                                                                                        {ctor: "_Tuple2"
-                                                                                                        ,_0: _v4._0
-                                                                                                        ,_1: 180},
-                                                                                                        "Title",
-                                                                                                        A2($Signal.message,
-                                                                                                        action.address,
-                                                                                                        $Material.OpenNavDrawer))
-                                                                                                        ,A2(body,
-                                                                                                        {ctor: "_Tuple2"
-                                                                                                        ,_0: _v4._0
-                                                                                                        ,_1: _v4._1 - 180},
-                                                                                                        state._0)]))
-                                                                                           ,A4($Material.navigationDrawer,
-                                                                                           _v4._0,
-                                                                                           _v4._1,
-                                                                                           pages,
-                                                                                           action.address)])));}
+                    return $Graphics$Element.layers(_L.fromArray([A2($Graphics$Element.flow,
+                                                                 $Graphics$Element.down,
+                                                                 _L.fromArray([A2(toolbar,
+                                                                              _v4._0,
+                                                                              state._0.title)
+                                                                              ,A2(body,
+                                                                              {ctor: "_Tuple2"
+                                                                              ,_0: _v4._0
+                                                                              ,_1: 180},
+                                                                              state._0.content)]))
+                                                                 ,A3($Material.navigationDrawer,
+                                                                 {ctor: "_Tuple2"
+                                                                 ,_0: _v4._0
+                                                                 ,_1: _v4._1},
+                                                                 pages,
+                                                                 action.address)]));}
                  _U.badCase($moduleName,
-                 "between lines 56 and 69");
+                 "between lines 56 and 67");
               }();}
          _U.badCase($moduleName,
-         "between lines 56 and 69");
+         "between lines 56 and 67");
       }();
    });
    var NavBar = function (a) {
@@ -102,13 +101,13 @@ Elm.Main.make = function (_elm) {
    var update = F2(function (action,
    state) {
       return function () {
-         var content = function () {
+         var page = function () {
             switch (state.ctor)
             {case "MainView":
                return state._0;
                case "NavBar": return state._0;}
             _U.badCase($moduleName,
-            "between lines 76 and 79");
+            "between lines 74 and 77");
          }();
          return function () {
             switch (action.ctor)
@@ -117,20 +116,20 @@ Elm.Main.make = function (_elm) {
                  {case "Just":
                     return MainView(action._0._0);
                     case "Nothing":
-                    return MainView(content);}
+                    return MainView(page);}
                  break;
                case "OpenNavDrawer":
-               return NavBar(content);}
+               return NavBar(page);}
             _U.badCase($moduleName,
-            "between lines 79 and 82");
+            "between lines 77 and 80");
          }();
       }();
    });
-   var main = $Debug.watch("action.signal")(A2($Signal.map2,
+   var main = A2($Signal.map2,
    view,
    $Window.dimensions)(A2($Signal.foldp,
    update,
-   MainView(helloWorld.content))(action.signal)));
+   MainView(helloWorld))(action.signal));
    _elm.Main.values = {_op: _op
                       ,main: main
                       ,MainView: MainView
@@ -140,6 +139,7 @@ Elm.Main.make = function (_elm) {
                       ,pages: pages
                       ,action: action
                       ,body: body
+                      ,toolbar: toolbar
                       ,view: view
                       ,update: update};
    return _elm.Main.values;
