@@ -1,0 +1,102 @@
+Elm.Material = Elm.Material || {};
+Elm.Material.make = function (_elm) {
+   "use strict";
+   _elm.Material = _elm.Material || {};
+   if (_elm.Material.values)
+   return _elm.Material.values;
+   var _op = {},
+   _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   $moduleName = "Material",
+   $Basics = Elm.Basics.make(_elm),
+   $Color = Elm.Color.make(_elm),
+   $Graphics$Element = Elm.Graphics.Element.make(_elm),
+   $Graphics$Input = Elm.Graphics.Input.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Signal = Elm.Signal.make(_elm),
+   $Text = Elm.Text.make(_elm);
+   var headerStyle = _U.replace([["height"
+                                 ,$Maybe.Just(50)]],
+   $Text.defaultStyle);
+   var title = function (string) {
+      return $Graphics$Element.centered($Text.style(headerStyle)($Text.fromString(string)));
+   };
+   var hamburger = A3($Graphics$Element.image,
+   60,
+   60,
+   "hamburger.svg");
+   var toolbar = F3(function (_v0,
+   string,
+   message) {
+      return function () {
+         switch (_v0.ctor)
+         {case "_Tuple2":
+            return $Graphics$Element.color($Color.green)(A4($Graphics$Element.container,
+              _v0._0,
+              _v0._1,
+              $Graphics$Element.midLeft,
+              A2($Graphics$Element.flow,
+              $Graphics$Element.right,
+              _L.fromArray([A2($Graphics$Element.spacer,
+                           60,
+                           1)
+                           ,$Graphics$Input.clickable(message)(hamburger)
+                           ,A2($Graphics$Element.spacer,
+                           180,
+                           1)
+                           ,title(string)]))));}
+         _U.badCase($moduleName,
+         "between lines 51 and 60");
+      }();
+   });
+   var CloseNavDrawer = function (a) {
+      return {ctor: "CloseNavDrawer"
+             ,_0: a};
+   };
+   var drawerOption = F2(function (address,
+   page) {
+      return $Graphics$Input.clickable(A2($Signal.message,
+      address,
+      CloseNavDrawer($Maybe.Just(page.content))))(A4($Graphics$Element.container,
+      340,
+      100,
+      $Graphics$Element.middle,
+      page.content));
+   });
+   var navigationDrawer = F4(function (width,
+   height,
+   pages,
+   address) {
+      return A2($Graphics$Element.flow,
+      $Graphics$Element.right,
+      _L.fromArray([$Graphics$Element.color($Color.white)(A2($Graphics$Element.flow,
+                   $Graphics$Element.down,
+                   A2($List.map,
+                   drawerOption(address),
+                   pages)))
+                   ,$Graphics$Input.clickable(A2($Signal.message,
+                   address,
+                   CloseNavDrawer($Maybe.Nothing)))($Graphics$Element.opacity(0.5)($Graphics$Element.color($Color.black)(A2($Graphics$Element.spacer,
+                   width,
+                   height))))]));
+   });
+   var OpenNavDrawer = {ctor: "OpenNavDrawer"};
+   var Page = F2(function (a,b) {
+      return {_: {}
+             ,content: a
+             ,title: b};
+   });
+   _elm.Material.values = {_op: _op
+                          ,Page: Page
+                          ,OpenNavDrawer: OpenNavDrawer
+                          ,CloseNavDrawer: CloseNavDrawer
+                          ,hamburger: hamburger
+                          ,drawerOption: drawerOption
+                          ,navigationDrawer: navigationDrawer
+                          ,toolbar: toolbar
+                          ,headerStyle: headerStyle
+                          ,title: title};
+   return _elm.Material.values;
+};
