@@ -1957,7 +1957,7 @@ Elm.Main.make = function (_elm) {
               $Graphics$Element.middle,
               content);}
          _U.badCase($moduleName,
-         "on line 48, column 3 to 35");
+         "on line 49, column 3 to 31");
       }();
    });
    var action = $Signal.mailbox($Material.OpenNavDrawer);
@@ -2014,10 +2014,10 @@ Elm.Main.make = function (_elm) {
                                                                  pages,
                                                                  action.address)]));}
                  _U.badCase($moduleName,
-                 "between lines 56 and 67");
+                 "between lines 57 and 68");
               }();}
          _U.badCase($moduleName,
-         "between lines 56 and 67");
+         "between lines 57 and 68");
       }();
    });
    var NavBar = function (a) {
@@ -2037,7 +2037,7 @@ Elm.Main.make = function (_elm) {
                return state._0;
                case "NavBar": return state._0;}
             _U.badCase($moduleName,
-            "between lines 74 and 77");
+            "between lines 75 and 78");
          }();
          return function () {
             switch (action.ctor)
@@ -2051,7 +2051,7 @@ Elm.Main.make = function (_elm) {
                case "OpenNavDrawer":
                return NavBar(page);}
             _U.badCase($moduleName,
-            "between lines 77 and 80");
+            "between lines 78 and 81");
          }();
       }();
    });

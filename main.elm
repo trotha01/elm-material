@@ -1,7 +1,8 @@
 import Window
 import Color exposing (green, white, black)
 import Graphics.Element exposing (Element)
-import Graphics.Element as G -- exposing (Element, centered, container, color, flow, right, spacer)
+import Graphics.Element exposing
+  (Element, centered, middle, down, layers, container, color, flow, right, spacer)
 import Graphics.Input exposing (clickable)
 import Text exposing (fromString)
 import Maybe exposing (Maybe)
@@ -21,13 +22,13 @@ type State
 
 helloWorld : Page
 helloWorld =
-  { content = G.centered (fromString "Hello World")
+  { content = centered (fromString "Hello World")
   , title = "Material Design Sample"
   }
 
 stuff : Page
 stuff =
-  { content = G.centered (fromString "Nothin` here yet")
+  { content = centered (fromString "Nothin` here yet")
   , title = "Components"
   }
 
@@ -45,7 +46,7 @@ action =
 
 body : (Int, Int) -> Element -> Element
 body (w, h) content =
-  G.container w h G.middle content
+  container w h middle content
 
 toolbar : Int -> String -> Element
 toolbar w title =
@@ -54,12 +55,12 @@ toolbar w title =
 view : (Int, Int) -> State -> Element
 view (w, h) state =
     case state of
-        MainView page -> G.flow G.down
+        MainView page -> flow down
           [ toolbar w page.title
           , body (w, 180) page.content
           ]
-        NavBar page -> G.layers
-          [ G.flow G.down
+        NavBar page -> layers
+          [ flow down
               [ toolbar w page.title
               , body (w, 180) page.content
               ]
