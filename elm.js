@@ -1970,14 +1970,14 @@ Elm.Main.make = function (_elm) {
       action.address,
       $Material.OpenNavDrawer));
    });
-   var stuff = {_: {}
-               ,content: $Graphics$Element.centered($Text.fromString("Nothin` here yet"))
-               ,title: "Components"};
+   var components = {_: {}
+                    ,content: $Graphics$Element.centered($Text.fromString("Nothin` here yet"))
+                    ,title: "Components"};
    var helloWorld = {_: {}
                     ,content: $Graphics$Element.centered($Text.fromString("Hello World"))
                     ,title: "Material Design Sample"};
    var pages = _L.fromArray([helloWorld
-                            ,stuff]);
+                            ,components]);
    var view = F2(function (_v4,
    state) {
       return function () {
@@ -2065,7 +2065,7 @@ Elm.Main.make = function (_elm) {
                       ,MainView: MainView
                       ,NavBar: NavBar
                       ,helloWorld: helloWorld
-                      ,stuff: stuff
+                      ,components: components
                       ,pages: pages
                       ,action: action
                       ,body: body

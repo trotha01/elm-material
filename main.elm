@@ -26,14 +26,14 @@ helloWorld =
   , title = "Material Design Sample"
   }
 
-stuff : Page
-stuff =
+components : Page
+components =
   { content = centered (fromString "Nothin` here yet")
   , title = "Components"
   }
 
 pages : Pages
-pages = [ helloWorld, stuff]
+pages = [ helloWorld, components ]
 
 
 -- INPUTS
