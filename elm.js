@@ -1957,7 +1957,7 @@ Elm.Main.make = function (_elm) {
               $Graphics$Element.middle,
               content);}
          _U.badCase($moduleName,
-         "on line 49, column 3 to 31");
+         "on line 50, column 3 to 31");
       }();
    });
    var action = $Signal.mailbox($Material.OpenNavDrawer);
@@ -2014,10 +2014,10 @@ Elm.Main.make = function (_elm) {
                                                                  pages,
                                                                  action.address)]));}
                  _U.badCase($moduleName,
-                 "between lines 57 and 68");
+                 "between lines 58 and 69");
               }();}
          _U.badCase($moduleName,
-         "between lines 57 and 68");
+         "between lines 58 and 69");
       }();
    });
    var NavBar = function (a) {
@@ -2037,7 +2037,7 @@ Elm.Main.make = function (_elm) {
                return state._0;
                case "NavBar": return state._0;}
             _U.badCase($moduleName,
-            "between lines 75 and 78");
+            "between lines 76 and 79");
          }();
          return function () {
             switch (action.ctor)
@@ -2051,7 +2051,7 @@ Elm.Main.make = function (_elm) {
                case "OpenNavDrawer":
                return NavBar(page);}
             _U.badCase($moduleName,
-            "between lines 78 and 81");
+            "between lines 79 and 82");
          }();
       }();
    });
@@ -2061,12 +2061,12 @@ Elm.Main.make = function (_elm) {
    update,
    MainView(helloWorld))(action.signal));
    _elm.Main.values = {_op: _op
-                      ,main: main
                       ,MainView: MainView
                       ,NavBar: NavBar
                       ,helloWorld: helloWorld
                       ,components: components
                       ,pages: pages
+                      ,main: main
                       ,action: action
                       ,body: body
                       ,toolbar: toolbar

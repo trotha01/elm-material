@@ -10,12 +10,9 @@ import List
 
 import Material exposing (Page, Pages)
 
-main : Signal Element
-main = action.signal
-  |> Signal.foldp update (MainView helloWorld)
-  |> Signal.map2 view Window.dimensions
 
 -- MODEL
+
 type State
     = MainView Page
     | NavBar Page
@@ -35,22 +32,21 @@ components =
 pages : Pages
 pages = [ helloWorld, components ]
 
+-- UPDATE
 
--- INPUTS
+update : Material.Action -> State -> State
+update action state =
+  let page =
+    case state of
+      MainView p -> p
+      NavBar p -> p
+  in case action of
+    Material.OpenNavDrawer -> NavBar page
+    Material.CloseNavDrawer (Just page) -> MainView page
+    Material.CloseNavDrawer (Nothing) -> MainView page
 
-action : Signal.Mailbox Material.Action
-action =
-  Signal.mailbox (Material.OpenNavDrawer)
 
--- DISPLAY
-
-body : (Int, Int) -> Element -> Element
-body (w, h) content =
-  container w h middle content
-
-toolbar : Int -> String -> Element
-toolbar w title =
-    Material.toolbar (w, 180) title (Signal.message action.address Material.OpenNavDrawer)
+-- View
 
 view : (Int, Int) -> State -> Element
 view (w, h) state =
@@ -67,15 +63,23 @@ view (w, h) state =
           , Material.navigationDrawer (w, h) pages action.address
           ]
 
--- UPDATE
+body : (Int, Int) -> Element -> Element
+body (w, h) content =
+  container w h middle content
 
-update : Material.Action -> State -> State
-update action state =
-  let page =
-    case state of
-      MainView p -> p
-      NavBar p -> p
-  in case action of
-    Material.OpenNavDrawer -> NavBar page
-    Material.CloseNavDrawer (Just page) -> MainView page
-    Material.CloseNavDrawer (Nothing) -> MainView page
+toolbar : Int -> String -> Element
+toolbar w title =
+    Material.toolbar (w, 180) title (Signal.message action.address Material.OpenNavDrawer)
+
+-- Signals
+
+main : Signal Element
+main = action.signal
+  |> Signal.foldp update (MainView helloWorld)
+  |> Signal.map2 view Window.dimensions
+
+action : Signal.Mailbox Material.Action
+action =
+  Signal.mailbox (Material.OpenNavDrawer)
+
+
