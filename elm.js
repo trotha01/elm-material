@@ -351,7 +351,7 @@ Elm.Color.make = function (_elm) {
                         ,saturation: s};
               }();}
          _U.badCase($moduleName,
-         "between lines 114 and 121");
+         "between lines 114 and 118");
       }();
    };
    var HSLA = F4(function (a,
@@ -407,7 +407,7 @@ Elm.Color.make = function (_elm) {
                  color._3);
               }();}
          _U.badCase($moduleName,
-         "between lines 105 and 111");
+         "between lines 105 and 108");
       }();
    };
    var grayscale = function (p) {
@@ -771,7 +771,7 @@ Elm.Graphics.Collage.make = function (_elm) {
                               ,["y",f.y + _v0._1]],
               f);}
          _U.badCase($moduleName,
-         "on line 226, column 7 to 35");
+         "on line 226, column 3 to 37");
       }();
    });
    var form = function (f) {
@@ -1454,7 +1454,7 @@ Elm.Graphics.Element.make = function (_elm) {
                  maxOrZero(ws),
                  $List.sum(hs));}
             _U.badCase($moduleName,
-            "between lines 362 and 373");
+            "between lines 362 and 368");
          }();
       }();
    });
@@ -1690,7 +1690,7 @@ Elm.List.make = function (_elm) {
             case "[]":
             return $Maybe.Nothing;}
          _U.badCase($moduleName,
-         "between lines 87 and 95");
+         "between lines 87 and 89");
       }();
    };
    var head = function (list) {
@@ -1701,7 +1701,7 @@ Elm.List.make = function (_elm) {
             case "[]":
             return $Maybe.Nothing;}
          _U.badCase($moduleName,
-         "between lines 75 and 84");
+         "between lines 75 and 77");
       }();
    };
    _op["::"] = $Native$List.cons;
@@ -1740,7 +1740,7 @@ Elm.List.make = function (_elm) {
             return A2(_op["::"],_v15._0,xs);
             case "Nothing": return xs;}
          _U.badCase($moduleName,
-         "between lines 179 and 186");
+         "between lines 179 and 181");
       }();
    });
    var filterMap = F2(function (f,
@@ -1887,7 +1887,7 @@ Elm.List.make = function (_elm) {
             case "[]":
             return _L.fromArray([]);}
          _U.badCase($moduleName,
-         "between lines 350 and 361");
+         "between lines 350 and 356");
       }();
    });
    _elm.List.values = {_op: _op
@@ -1941,35 +1941,12 @@ Elm.Main.make = function (_elm) {
    $moduleName = "Main",
    $Basics = Elm.Basics.make(_elm),
    $Graphics$Element = Elm.Graphics.Element.make(_elm),
+   $List = Elm.List.make(_elm),
    $Material = Elm.Material.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm),
-   $Text = Elm.Text.make(_elm),
-   $Window = Elm.Window.make(_elm);
-   var body = F2(function (_v0,
-   content) {
-      return function () {
-         switch (_v0.ctor)
-         {case "_Tuple2":
-            return A4($Graphics$Element.container,
-              _v0._0,
-              _v0._1,
-              $Graphics$Element.middle,
-              content);}
-         _U.badCase($moduleName,
-         "on line 50, column 3 to 31");
-      }();
-   });
-   var action = $Signal.mailbox($Material.OpenNavDrawer);
-   var toolbar = F2(function (w,
-   title) {
-      return A3($Material.toolbar,
-      {ctor: "_Tuple2",_0: w,_1: 180},
-      title,
-      A2($Signal.message,
-      action.address,
-      $Material.OpenNavDrawer));
-   });
+   $Text = Elm.Text.make(_elm);
    var components = {_: {}
                     ,content: $Graphics$Element.centered($Text.fromString("Nothin` here yet"))
                     ,title: "Components"};
@@ -1978,100 +1955,12 @@ Elm.Main.make = function (_elm) {
                     ,title: "Material Design Sample"};
    var pages = _L.fromArray([helloWorld
                             ,components]);
-   var view = F2(function (_v4,
-   state) {
-      return function () {
-         switch (_v4.ctor)
-         {case "_Tuple2":
-            return function () {
-                 switch (state.ctor)
-                 {case "MainView":
-                    return A2($Graphics$Element.flow,
-                      $Graphics$Element.down,
-                      _L.fromArray([A2(toolbar,
-                                   _v4._0,
-                                   state._0.title)
-                                   ,A2(body,
-                                   {ctor: "_Tuple2"
-                                   ,_0: _v4._0
-                                   ,_1: 180},
-                                   state._0.content)]));
-                    case "NavBar":
-                    return $Graphics$Element.layers(_L.fromArray([A2($Graphics$Element.flow,
-                                                                 $Graphics$Element.down,
-                                                                 _L.fromArray([A2(toolbar,
-                                                                              _v4._0,
-                                                                              state._0.title)
-                                                                              ,A2(body,
-                                                                              {ctor: "_Tuple2"
-                                                                              ,_0: _v4._0
-                                                                              ,_1: 180},
-                                                                              state._0.content)]))
-                                                                 ,A3($Material.navigationDrawer,
-                                                                 {ctor: "_Tuple2"
-                                                                 ,_0: _v4._0
-                                                                 ,_1: _v4._1},
-                                                                 pages,
-                                                                 action.address)]));}
-                 _U.badCase($moduleName,
-                 "between lines 58 and 69");
-              }();}
-         _U.badCase($moduleName,
-         "between lines 58 and 69");
-      }();
-   });
-   var NavBar = function (a) {
-      return {ctor: "NavBar"
-             ,_0: a};
-   };
-   var MainView = function (a) {
-      return {ctor: "MainView"
-             ,_0: a};
-   };
-   var update = F2(function (action,
-   state) {
-      return function () {
-         var page = function () {
-            switch (state.ctor)
-            {case "MainView":
-               return state._0;
-               case "NavBar": return state._0;}
-            _U.badCase($moduleName,
-            "between lines 76 and 79");
-         }();
-         return function () {
-            switch (action.ctor)
-            {case "CloseNavDrawer":
-               switch (action._0.ctor)
-                 {case "Just":
-                    return MainView(action._0._0);
-                    case "Nothing":
-                    return MainView(page);}
-                 break;
-               case "OpenNavDrawer":
-               return NavBar(page);}
-            _U.badCase($moduleName,
-            "between lines 79 and 82");
-         }();
-      }();
-   });
-   var main = A2($Signal.map2,
-   view,
-   $Window.dimensions)(A2($Signal.foldp,
-   update,
-   MainView(helloWorld))(action.signal));
+   var main = $Material.app(pages);
    _elm.Main.values = {_op: _op
-                      ,MainView: MainView
-                      ,NavBar: NavBar
                       ,helloWorld: helloWorld
                       ,components: components
                       ,pages: pages
-                      ,main: main
-                      ,action: action
-                      ,body: body
-                      ,toolbar: toolbar
-                      ,view: view
-                      ,update: update};
+                      ,main: main};
    return _elm.Main.values;
 };
 Elm.Material = Elm.Material || {};
@@ -2091,8 +1980,13 @@ Elm.Material.make = function (_elm) {
    $Graphics$Input = Elm.Graphics.Input.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm),
-   $Text = Elm.Text.make(_elm);
+   $Text = Elm.Text.make(_elm),
+   $Window = Elm.Window.make(_elm);
+   var emptyPage = {_: {}
+                   ,content: $Graphics$Element.centered($Text.fromString("Error: No Pages Found"))
+                   ,title: "Uh Oh!"};
    var headerStyle = _U.replace([["height"
                                  ,$Maybe.Just(50)]],
    $Text.defaultStyle);
@@ -2131,7 +2025,7 @@ Elm.Material.make = function (_elm) {
                            1)
                            ,title(string)]))));}
          _U.badCase($moduleName,
-         "between lines 83 and 92");
+         "between lines 135 and 144");
       }();
    });
    var scrim = function (_v4) {
@@ -2142,9 +2036,58 @@ Elm.Material.make = function (_elm) {
               _v4._0,
               _v4._1)));}
          _U.badCase($moduleName,
-         "between lines 34 and 36");
+         "between lines 82 and 84");
       }();
    };
+   var body = F2(function (_v8,
+   content) {
+      return function () {
+         switch (_v8.ctor)
+         {case "_Tuple2":
+            return A4($Graphics$Element.container,
+              _v8._0,
+              _v8._1,
+              $Graphics$Element.middle,
+              content);}
+         _U.badCase($moduleName,
+         "on line 58, column 3 to 31");
+      }();
+   });
+   var NavBar = function (a) {
+      return {ctor: "NavBar"
+             ,_0: a};
+   };
+   var MainView = function (a) {
+      return {ctor: "MainView"
+             ,_0: a};
+   };
+   var update = F2(function (action,
+   state) {
+      return function () {
+         var page = function () {
+            switch (state.ctor)
+            {case "MainView":
+               return state._0;
+               case "NavBar": return state._0;}
+            _U.badCase($moduleName,
+            "between lines 30 and 33");
+         }();
+         return function () {
+            switch (action.ctor)
+            {case "CloseNavDrawer":
+               switch (action._0.ctor)
+                 {case "Just":
+                    return MainView(action._0._0);
+                    case "Nothing":
+                    return MainView(page);}
+                 break;
+               case "OpenNavDrawer":
+               return NavBar(page);}
+            _U.badCase($moduleName,
+            "between lines 33 and 36");
+         }();
+      }();
+   });
    var CloseNavDrawer = function (a) {
       return {ctor: "CloseNavDrawer"
              ,_0: a};
@@ -2167,11 +2110,11 @@ Elm.Material.make = function (_elm) {
       drawerOption(address),
       pages)));
    });
-   var navigationDrawer = F3(function (_v8,
+   var navigationDrawer = F3(function (_v18,
    pages,
    address) {
       return function () {
-         switch (_v8.ctor)
+         switch (_v18.ctor)
          {case "_Tuple2":
             return A2($Graphics$Element.flow,
               $Graphics$Element.right,
@@ -2181,13 +2124,84 @@ Elm.Material.make = function (_elm) {
                            ,$Graphics$Input.clickable(A2($Signal.message,
                            address,
                            CloseNavDrawer($Maybe.Nothing)))(scrim({ctor: "_Tuple2"
-                                                                  ,_0: _v8._0
-                                                                  ,_1: _v8._1}))]));}
+                                                                  ,_0: _v18._0
+                                                                  ,_1: _v18._1}))]));}
          _U.badCase($moduleName,
-         "between lines 44 and 48");
+         "between lines 94 and 98");
       }();
    });
    var OpenNavDrawer = {ctor: "OpenNavDrawer"};
+   var action = $Signal.mailbox(OpenNavDrawer);
+   var toolbarView = F2(function (w,
+   title) {
+      return A3(toolbar,
+      {ctor: "_Tuple2",_0: w,_1: 180},
+      title,
+      A2($Signal.message,
+      action.address,
+      OpenNavDrawer));
+   });
+   var view = F3(function (pages,
+   _v22,
+   state) {
+      return function () {
+         switch (_v22.ctor)
+         {case "_Tuple2":
+            return function () {
+                 switch (state.ctor)
+                 {case "MainView":
+                    return A2($Graphics$Element.flow,
+                      $Graphics$Element.down,
+                      _L.fromArray([A2(toolbarView,
+                                   _v22._0,
+                                   state._0.title)
+                                   ,A2(body,
+                                   {ctor: "_Tuple2"
+                                   ,_0: _v22._0
+                                   ,_1: 180},
+                                   state._0.content)]));
+                    case "NavBar":
+                    return $Graphics$Element.layers(_L.fromArray([A2($Graphics$Element.flow,
+                                                                 $Graphics$Element.down,
+                                                                 _L.fromArray([A2(toolbarView,
+                                                                              _v22._0,
+                                                                              state._0.title)
+                                                                              ,A2(body,
+                                                                              {ctor: "_Tuple2"
+                                                                              ,_0: _v22._0
+                                                                              ,_1: 180},
+                                                                              state._0.content)]))
+                                                                 ,A3(navigationDrawer,
+                                                                 {ctor: "_Tuple2"
+                                                                 ,_0: _v22._0
+                                                                 ,_1: _v22._1},
+                                                                 pages,
+                                                                 action.address)]));}
+                 _U.badCase($moduleName,
+                 "between lines 43 and 54");
+              }();}
+         _U.badCase($moduleName,
+         "between lines 43 and 54");
+      }();
+   });
+   var app = function (pages) {
+      return function () {
+         var initialPage = function () {
+            var _v29 = $List.head(pages);
+            switch (_v29.ctor)
+            {case "Just": return _v29._0;
+               case "Nothing":
+               return emptyPage;}
+            _U.badCase($moduleName,
+            "between lines 167 and 170");
+         }();
+         return A2($Signal.map2,
+         view(pages),
+         $Window.dimensions)(A2($Signal.foldp,
+         update,
+         MainView(initialPage))(action.signal));
+      }();
+   };
    var Page = F2(function (a,b) {
       return {_: {}
              ,content: a
@@ -2197,6 +2211,12 @@ Elm.Material.make = function (_elm) {
                           ,Page: Page
                           ,OpenNavDrawer: OpenNavDrawer
                           ,CloseNavDrawer: CloseNavDrawer
+                          ,MainView: MainView
+                          ,NavBar: NavBar
+                          ,update: update
+                          ,view: view
+                          ,body: body
+                          ,toolbarView: toolbarView
                           ,drawerOption: drawerOption
                           ,drawerOptions: drawerOptions
                           ,scrim: scrim
@@ -2211,7 +2231,10 @@ Elm.Material.make = function (_elm) {
                           ,lTitleSize: lTitleSize
                           ,toolbar: toolbar
                           ,headerStyle: headerStyle
-                          ,title: title};
+                          ,title: title
+                          ,emptyPage: emptyPage
+                          ,action: action
+                          ,app: app};
    return _elm.Material.values;
 };
 Elm.Maybe = Elm.Maybe || {};
@@ -2233,7 +2256,7 @@ Elm.Maybe.make = function (_elm) {
             case "Nothing":
             return $default;}
          _U.badCase($moduleName,
-         "between lines 45 and 56");
+         "between lines 45 and 47");
       }();
    });
    var Nothing = {ctor: "Nothing"};
@@ -2246,11 +2269,11 @@ Elm.Maybe.make = function (_elm) {
                     case "Nothing":
                     return oneOf(maybes._1);}
                  _U.badCase($moduleName,
-                 "between lines 64 and 73");
+                 "between lines 64 and 66");
               }();
             case "[]": return Nothing;}
          _U.badCase($moduleName,
-         "between lines 59 and 73");
+         "between lines 59 and 66");
       }();
    };
    var andThen = F2(function (maybeValue,
@@ -2275,7 +2298,7 @@ Elm.Maybe.make = function (_elm) {
             return Just(f(maybe._0));
             case "Nothing": return Nothing;}
          _U.badCase($moduleName,
-         "between lines 76 and 107");
+         "between lines 76 and 78");
       }();
    });
    _elm.Maybe.values = {_op: _op
@@ -7126,7 +7149,7 @@ Elm.Result.make = function (_elm) {
             case "Ok":
             return $Maybe.Just(result._0);}
          _U.badCase($moduleName,
-         "between lines 164 and 177");
+         "between lines 164 and 166");
       }();
    };
    var Err = function (a) {
@@ -7141,7 +7164,7 @@ Elm.Result.make = function (_elm) {
             case "Ok":
             return callback(result._0);}
          _U.badCase($moduleName,
-         "between lines 126 and 145");
+         "between lines 126 and 128");
       }();
    });
    var Ok = function (a) {
@@ -7155,7 +7178,7 @@ Elm.Result.make = function (_elm) {
             case "Ok":
             return Ok(func(ra._0));}
          _U.badCase($moduleName,
-         "between lines 41 and 52");
+         "between lines 41 and 43");
       }();
    });
    var map2 = F3(function (func,
@@ -7309,7 +7332,7 @@ Elm.Result.make = function (_elm) {
                  return Err(_v39._4._0);}
               break;}
          _U.badCase($moduleName,
-         "between lines 82 and 123");
+         "between lines 82 and 88");
       }();
    });
    var formatError = F2(function (f,
@@ -7321,7 +7344,7 @@ Elm.Result.make = function (_elm) {
             case "Ok":
             return Ok(result._0);}
          _U.badCase($moduleName,
-         "between lines 148 and 161");
+         "between lines 148 and 150");
       }();
    });
    var fromMaybe = F2(function (err,
@@ -7452,7 +7475,7 @@ Elm.Signal.make = function (_elm) {
             case "[]":
             return $Debug.crash("mergeMany was given an empty list!");}
          _U.badCase($moduleName,
-         "between lines 177 and 197");
+         "between lines 177 and 182");
       }();
    };
    var foldp = $Native$Signal.foldp;
