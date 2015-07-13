@@ -8,6 +8,7 @@ import List
 import Signal
 import Text exposing (Style, fromString, defaultStyle, style)
 import Window
+import Toolbar
 
 -- MODEL
 
@@ -41,17 +42,21 @@ update action state =
 view : Pages -> (Int, Int) -> State -> Element
 view pages (w, h) state =
     case state of
-        MainView page -> flow down
-          [ toolbarView w page.title
-          , body (w, 180) page.content
-          ]
-        NavBar page -> layers
-          [ flow down
-              [ toolbarView w page.title
-              , body (w, 180) page.content
-              ]
-          , navigationDrawer (w, h) pages action.address
-          ]
+        MainView page -> pageView (w, h) page
+        NavBar page -> navView (w, h) pages page
+
+pageView (w, h) page = flow down
+  [ toolbarView w page.title
+  , body (w, 180) page.content
+  ]
+
+navView (w, h) pages currentPage = layers
+  [ flow down
+    [ toolbarView w currentPage.title
+    , body (w, 180) currentPage.content
+    ]
+  , navigationDrawer (w, h) pages action.address
+  ]
 
 body : (Int, Int) -> Element -> Element
 body (w, h) content =
@@ -59,10 +64,9 @@ body (w, h) content =
 
 toolbarView : Int -> String -> Element
 toolbarView w title =
-    toolbar (w, 180) title (Signal.message action.address OpenNavDrawer)
+    Toolbar.toolbar (w, 180) title (Signal.message action.address OpenNavDrawer)
 
-
-
+-- Nav Drawer View
 drawerOption : Signal.Address Action -> Page -> Element
 drawerOption address page =
       container 340 100 middle (centered (fromString page.title))
@@ -96,61 +100,6 @@ navigationDrawer (width, height) pages address =
   , scrim (width, height)
       |> clickable (Signal.message address (CloseNavDrawer Nothing))
   ]
-
-
--- TOOLBAR
-
-toolbarIconSize : Int
-toolbarIconSize = 24
-
-hamburger : Element
-hamburger = image toolbarIconSize toolbarIconSize "hamburger.svg"
-
--- Large Toolbar
-
-lToolbarHeight : Int
-lToolbarHeight = 128
-
-lToolbarMarginLeft : Int
-lToolbarMarginLeft = 16
-
-lTitleMarginLeft : Int
-lTitleMarginLeft = 72 - lToolbarMarginLeft - toolbarIconSize
-
-lTitleMarginBottom : Int
-lTitleMarginBottom = 16
-
-lIconRowHeight : Int
-lIconRowHeight = 56
-
-lTitleSize : Int
-lTitleSize = 112
-
-
-{-|
-  toolbar takes in a width (of the screen) and a title string
---}
-toolbar : (Int, Int) -> String -> Signal.Message -> Element
-toolbar (width, height) string message =
-  container width lToolbarHeight midLeft
-  (flow right
-    [ spacer lToolbarMarginLeft 1
-    , hamburger
-        |> clickable message
-    , spacer lTitleMarginLeft 1
-    , title string
-    ]
-  )
-  |> color green
-
-headerStyle : Style
-headerStyle = { defaultStyle | height <- Just 50 }
-
-title : String -> Element
-title string = leftAligned
-  (Text.fromString string
-    |> style headerStyle)
-
 
 emptyPage : Page
 emptyPage =
