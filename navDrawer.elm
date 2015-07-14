@@ -10,9 +10,12 @@ import Page exposing (Page, Pages, scrim)
 import Text exposing (fromString)
 
 
--- Model
+-- MODEL
+
 type Action
-    = CloseNavDrawer (Maybe Page) -- Might change page when nav bar closes
+    = SelectPage Page -- Might change page when nav bar closes
+
+-- VIEW
 
 {-|
   NavigationDrawer comes in from the left
@@ -20,19 +23,16 @@ type Action
   width and height should be Window.Dimensions
   noOpMessage is when someone exits the navbar without selecting anything
 -}
-navigationDrawer : (Int, Int) -> Pages -> Signal.Address Action -> Element
-navigationDrawer (width, height) pages address =
-  flow right
-  [ drawerOptions address pages
-  , scrim (width, height)
-      |> clickable (Signal.message address (CloseNavDrawer Nothing))
-  ]
+navigationDrawer : (Int, Int) -> Pages -> Element
+navigationDrawer (width, height) pages =
+  let address = navDrawerMailbox.address
+  in drawerOptions address pages
 
 -- Nav Drawer View
 drawerOption : Signal.Address Action -> Page -> Element
 drawerOption address page =
       container 340 100 middle (centered (fromString page.title))
-          |> clickable (Signal.message address (CloseNavDrawer (Just page)))
+          |> clickable (Signal.message address (SelectPage page))
 
 drawerOptions : Signal.Address Action -> Pages -> Element
 drawerOptions address pages =
@@ -40,7 +40,16 @@ drawerOptions address pages =
     (List.map (drawerOption address) pages)
     |> color white
 
--- Action
+-- TODO: initialize with main page?
+emptyPage : Page
+emptyPage =
+  { title = "Uh Oh!"
+  , content = centered (fromString "Error: No Pages Found")
+  }
+
+
+-- SIGNALS
+
 navDrawerMailbox : Signal.Mailbox Action
 navDrawerMailbox =
-  Signal.mailbox (CloseNavDrawer Nothing)
+  Signal.mailbox (SelectPage emptyPage)

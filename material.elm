@@ -1,8 +1,6 @@
 module Material where
 
-import Graphics.Element exposing
-  (Element, layers, middle, container, flow, right, down, color, spacer, opacity, centered)
-import Color exposing (white, black)
+import Graphics.Element exposing (Element, layers, middle, container, flow, down, right, centered, width, height)
 import Graphics.Input exposing (clickable)
 import List
 import Signal
@@ -11,13 +9,14 @@ import Window
 
 import Toolbar exposing (toolbarMailbox)
 import NavDrawer exposing (navDrawerMailbox)
-import Page exposing (Page, Pages)
+import Page exposing (Page, Pages, scrim)
 
 -- MODEL
 
 type Action
     = ToolbarAction Toolbar.Action
     | NavAction NavDrawer.Action
+    | CloseNavDrawer
 
 type State
     = MainView Page
@@ -27,15 +26,13 @@ type State
 
 update : Action -> State -> State
 update action state =
-  let page =
-    case state of
+  let page = case state of
       MainView p -> p
       NavBar p -> p
   in case action of
     ToolbarAction a -> NavBar page
-    NavAction a -> case a of
-      NavDrawer.CloseNavDrawer (Just newPage) -> MainView newPage
-      NavDrawer.CloseNavDrawer Nothing -> MainView page
+    NavAction (NavDrawer.SelectPage newPage) -> MainView newPage
+    CloseNavDrawer -> MainView page
 
 -- VIEW
 
@@ -55,7 +52,11 @@ navView (w, h) pages currentPage = layers
     [ toolbarView w currentPage.title
     , body (w, 180) currentPage.content
     ]
-  , NavDrawer.navigationDrawer (w, h) pages navDrawerMailbox.address
+  , flow right [
+      NavDrawer.navigationDrawer (w, h) pages ,
+      scrim (w, h)
+        |> clickable  (Signal.message appMailbox.address (CloseNavDrawer))
+    ]
   ]
 
 body : (Int, Int) -> Element -> Element
@@ -64,7 +65,7 @@ body (w, h) content =
 
 toolbarView : Int -> String -> Element
 toolbarView w title =
-    Toolbar.toolbar w title (Signal.message toolbarMailbox.address Toolbar.OpenNavDrawer)
+    Toolbar.toolbar w title
 
 emptyPage : Page
 emptyPage =
@@ -72,11 +73,7 @@ emptyPage =
   , content = centered (fromString "Error: No Pages Found")
   }
 
-{-
-action : Signal.Mailbox Action
-action =
-  Signal.mailbox (OpenNavDrawer)
-  -}
+-- SIGNALS
 
 app : Pages -> Signal Element
 app pages =
@@ -88,4 +85,9 @@ app pages =
             (Signal.map NavAction navDrawerMailbox.signal))
            |> Signal.foldp update (MainView initialPage)
            |> Signal.map2 (view pages) Window.dimensions
+
+appMailbox : Signal.Mailbox Action
+appMailbox =
+  Signal.mailbox (CloseNavDrawer)
+
 

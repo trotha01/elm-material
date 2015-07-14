@@ -14,5 +14,3 @@ scrim (width, height) =
     spacer (width) height
       |> color black
       |> opacity (0.5)
-
-

@@ -5,9 +5,11 @@ import Graphics.Input exposing (clickable)
 import Text exposing (Style, style, defaultStyle)
 import Color exposing (green)
 
--- Model
+-- MODEL
 type Action
     = OpenNavDrawer
+
+-- VIEW
 
 -- Toolbar Icon
 
@@ -49,22 +51,22 @@ titleFromString string = leftAligned
 {-|
   toolbar takes in the width of the screen and a title string
 --}
-toolbar : Int -> String -> Signal.Message -> Element
-toolbar width title message =
+toolbar : Int -> String -> Element
+toolbar width title =
   container width lToolbarHeight midLeft
   (flow right
     [ spacer lToolbarMarginLeft 1
     , hamburger
-        |> clickable message
+        |> clickable  (Signal.message toolbarMailbox.address OpenNavDrawer)
     , spacer lTitleMarginLeft 1
     , titleFromString title 
     ]
   )
   |> color green
 
--- Action
+-- SIGNALS
+
 toolbarMailbox : Signal.Mailbox Action
 toolbarMailbox =
   Signal.mailbox (OpenNavDrawer)
-
 
