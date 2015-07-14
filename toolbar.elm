@@ -5,7 +5,11 @@ import Graphics.Input exposing (clickable)
 import Text exposing (Style, style, defaultStyle)
 import Color exposing (green)
 
--- TOOLBAR
+-- Model
+type Action
+    = OpenNavDrawer
+
+-- Toolbar Icon
 
 toolbarIconSize : Int
 toolbarIconSize = 24
@@ -13,7 +17,7 @@ toolbarIconSize = 24
 hamburger : Element
 hamburger = image toolbarIconSize toolbarIconSize "hamburger.svg"
 
--- Large Toolbar
+-- Large Toolbar Sizing
 
 lToolbarHeight : Int
 lToolbarHeight = 128
@@ -37,24 +41,30 @@ headerStyle : Style
 headerStyle = { defaultStyle | height <- Just 50 }
 
 
-title : String -> Element
-title string = leftAligned
+titleFromString : String -> Element
+titleFromString string = leftAligned
   (Text.fromString string
     |> style headerStyle)
 
-
 {-|
-  toolbar takes in a width (of the screen) and a title string
+  toolbar takes in the width of the screen and a title string
 --}
-toolbar : (Int, Int) -> String -> Signal.Message -> Element
-toolbar (width, height) string message =
+toolbar : Int -> String -> Signal.Message -> Element
+toolbar width title message =
   container width lToolbarHeight midLeft
   (flow right
     [ spacer lToolbarMarginLeft 1
     , hamburger
         |> clickable message
     , spacer lTitleMarginLeft 1
-    , title string
+    , titleFromString title 
     ]
   )
   |> color green
+
+-- Action
+toolbarMailbox : Signal.Mailbox Action
+toolbarMailbox =
+  Signal.mailbox (OpenNavDrawer)
+
+

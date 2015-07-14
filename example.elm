@@ -8,7 +8,8 @@ import Text exposing (fromString)
 import Maybe exposing (Maybe)
 import List
 
-import Material exposing (Page, Pages)
+import Material
+import Page exposing (Page, Pages)
 
 
 -- MODEL
@@ -25,8 +26,14 @@ components =
   , content = centered (fromString "Nothin` here yet")
   }
 
+patterns : Page
+patterns =
+  { title = "Patterns"
+  , content = centered (fromString "patterns will go here, patterns will go here, patterns will go here")
+  }
+
 pages : Pages
-pages = [ helloWorld, components ]
+pages = [ helloWorld, components, patterns ]
 
 main : Signal Element
 main = Material.app pages

@@ -1,23 +1,23 @@
 module Material where
 
 import Graphics.Element exposing
-  (Element, layers, middle, container, flow, right, down, color, spacer, opacity, midLeft, image, centered, leftAligned)
-import Color exposing (green, white, black)
+  (Element, layers, middle, container, flow, right, down, color, spacer, opacity, centered)
+import Color exposing (white, black)
 import Graphics.Input exposing (clickable)
 import List
 import Signal
-import Text exposing (Style, fromString, defaultStyle, style)
+import Text exposing (fromString)
 import Window
-import Toolbar
+
+import Toolbar exposing (toolbarMailbox)
+import NavDrawer exposing (navDrawerMailbox)
+import Page exposing (Page, Pages)
 
 -- MODEL
 
-type alias Page = { content:Element, title:String }
-type alias Pages = List Page
-
 type Action
-    = OpenNavDrawer
-    | CloseNavDrawer (Maybe Page) -- Might change page when nav bar closes
+    = ToolbarAction Toolbar.Action
+    | NavAction NavDrawer.Action
 
 type State
     = MainView Page
@@ -32,10 +32,10 @@ update action state =
       MainView p -> p
       NavBar p -> p
   in case action of
-    OpenNavDrawer -> NavBar page
-    CloseNavDrawer (Just page) -> MainView page
-    CloseNavDrawer (Nothing) -> MainView page
-
+    ToolbarAction a -> NavBar page
+    NavAction a -> case a of
+      NavDrawer.CloseNavDrawer (Just newPage) -> MainView newPage
+      NavDrawer.CloseNavDrawer Nothing -> MainView page
 
 -- VIEW
 
@@ -55,7 +55,7 @@ navView (w, h) pages currentPage = layers
     [ toolbarView w currentPage.title
     , body (w, 180) currentPage.content
     ]
-  , navigationDrawer (w, h) pages action.address
+  , NavDrawer.navigationDrawer (w, h) pages navDrawerMailbox.address
   ]
 
 body : (Int, Int) -> Element -> Element
@@ -64,42 +64,7 @@ body (w, h) content =
 
 toolbarView : Int -> String -> Element
 toolbarView w title =
-    Toolbar.toolbar (w, 180) title (Signal.message action.address OpenNavDrawer)
-
--- Nav Drawer View
-drawerOption : Signal.Address Action -> Page -> Element
-drawerOption address page =
-      container 340 100 middle (centered (fromString page.title))
-          |> clickable (Signal.message address (CloseNavDrawer (Just page)))
-
-drawerOptions : Signal.Address Action -> Pages -> Element
-drawerOptions address pages =
-  flow down
-    (List.map (drawerOption address) pages)
-    |> color white
-
-{-|
-  The scrim is used to fade the screen
--}
-scrim : (Int, Int) -> Element
-scrim (width, height) =
-    spacer (width) height
-      |> color black
-      |> opacity (0.5)
-
-{-|
-  NavigationDrawer comes in from the left
-  Includes fading the rest of the screen
-  width and height should be Window.Dimensions
-  noOpMessage is when someone exits the navbar without selecting anything
--}
-navigationDrawer : (Int, Int) -> Pages -> Signal.Address Action -> Element
-navigationDrawer (width, height) pages address =
-  flow right
-  [ drawerOptions address pages
-  , scrim (width, height)
-      |> clickable (Signal.message address (CloseNavDrawer Nothing))
-  ]
+    Toolbar.toolbar w title (Signal.message toolbarMailbox.address Toolbar.OpenNavDrawer)
 
 emptyPage : Page
 emptyPage =
@@ -107,16 +72,20 @@ emptyPage =
   , content = centered (fromString "Error: No Pages Found")
   }
 
+{-
 action : Signal.Mailbox Action
 action =
   Signal.mailbox (OpenNavDrawer)
+  -}
 
 app : Pages -> Signal Element
 app pages =
         let initialPage = case (List.head pages) of
                 Just p -> p
                 Nothing -> emptyPage
-        in action.signal
+        in (Signal.merge
+            (Signal.map ToolbarAction toolbarMailbox.signal)
+            (Signal.map NavAction navDrawerMailbox.signal))
            |> Signal.foldp update (MainView initialPage)
            |> Signal.map2 (view pages) Window.dimensions
 
