@@ -5,6 +5,7 @@ import Graphics.Element exposing (Element, flow, right, container, middle, cente
 import Graphics.Input exposing (clickable)
 import Material.Foo exposing (Page, Pages, scrim)
 import Text exposing (fromString)
+import Signal exposing (Mailbox)
 
 
 -- MODEL
@@ -18,7 +19,7 @@ type Action
   NavigationDrawer comes in from the left
   width and height should be Window.Dimensions
 -}
-navigationDrawer : (Int, Int) -> Pages -> Signal.Mailbox Action -> Element
+navigationDrawer : (Int, Int) -> Pages -> Mailbox Action -> Element
 navigationDrawer (width, height) pages mailbox =
   drawerOptions mailbox.address pages
     |> color white
@@ -36,7 +37,7 @@ drawerOption address page =
 
 -- SIGNALS
 
-mailbox : Page -> Signal.Mailbox Action
+mailbox : Page -> Mailbox Action
 mailbox page =
   Signal.mailbox (SelectPage page)
 

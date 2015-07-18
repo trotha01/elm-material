@@ -3,7 +3,7 @@ module Material where
 import Graphics.Element exposing (Element, layers, middle, container, flow, down, right, centered, width, height)
 import Graphics.Input exposing (clickable)
 import List
-import Signal
+import Signal exposing (Mailbox)
 import Text exposing (fromString)
 import Window
 import Debug
@@ -16,7 +16,7 @@ import Material.Foo exposing (Page, Pages, scrim)
 {-
  - Figure out what good comments look like
     http://package.elm-lang.org/help/documentation-format
- - Add type annotations to everything
+ - Rename subpackage foo
 -}
 
 -- MODEL
@@ -49,7 +49,7 @@ update action state =
 
 -- VIEW
 
-view : Pages -> Signal.Mailbox NavDrawer.Action -> (Int, Int) -> State -> Element
+view : Pages -> Mailbox NavDrawer.Action -> (Int, Int) -> State -> Element
 view pages navMailbox (w, h) state =
     case state of
         MainView page ->
@@ -57,12 +57,14 @@ view pages navMailbox (w, h) state =
         NavBar page ->
           navView (w, h) pages page navMailbox
 
+pageView : (Int, Int) -> Page -> Element
 pageView (w, h) page = flow down
   [
     toolbarView w page.title,
     body (w, 180) page.content
   ]
 
+navView : (Int, Int) -> Pages -> Page -> Mailbox NavDrawer.Action -> Element
 navView (w, h) pages currentPage navMailbox =
   layers
     [
@@ -88,11 +90,11 @@ toolbarView : Int -> String -> Element
 toolbarView w title =
     Toolbar.toolbar w title
 
-emptyPage : Page
-emptyPage =
+errorPage : String -> Page
+errorPage contents =
   {
     title = "Uh Oh!",
-    content = centered (fromString "Error: No Pages Found")
+    content = centered (fromString contents)
   }
 
 -- SIGNALS
@@ -103,7 +105,7 @@ app pages =
                 Just page ->
                   page
                 Nothing ->
-                  emptyPage
+                  errorPage "No pages found!"
             navMailbox = NavDrawer.mailbox initialPage
         in Signal.mergeMany
            [
@@ -114,7 +116,7 @@ app pages =
            |> Signal.foldp update (MainView initialPage)
            |> Signal.map2 (view pages navMailbox) Window.dimensions
 
-appMailbox : Signal.Mailbox Action
+appMailbox : Mailbox Action
 appMailbox =
   Signal.mailbox (CloseNavDrawer)
 

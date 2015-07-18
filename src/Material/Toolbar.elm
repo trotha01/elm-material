@@ -19,9 +19,6 @@ type Action
 toolbarIconSize : Int
 toolbarIconSize = 24
 
--- hamburger : Element
--- hamburger = image toolbarIconSize toolbarIconSize "./hamburger.svg"
-
 hamburger : Svg
 hamburger = menu Color.white 30
 
