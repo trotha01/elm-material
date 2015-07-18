@@ -4,8 +4,9 @@ import Graphics.Element exposing (Element, image, color, container, midLeft, flo
 import Graphics.Input exposing (clickable)
 import Text exposing (Style, style, defaultStyle)
 import Color exposing (green)
--- import Svg exposing (Svg)
--- import Material.Icons.Navigation exposing (menu)
+import Svg exposing (Svg)
+import Html
+import Material.Icons.Navigation exposing (menu)
 
 -- MODEL
 type Action
@@ -18,11 +19,11 @@ type Action
 toolbarIconSize : Int
 toolbarIconSize = 24
 
-hamburger : Element
-hamburger = image toolbarIconSize toolbarIconSize "./hamburger.svg"
+-- hamburger : Element
+-- hamburger = image toolbarIconSize toolbarIconSize "./hamburger.svg"
 
--- hamburger : Svg
--- hamburger = menu 
+hamburger : Svg
+hamburger = menu Color.white 30
 
 -- Large Toolbar Sizing
 
@@ -62,7 +63,7 @@ toolbar width title =
   (flow right
     [
       spacer lToolbarMarginLeft 1,
-      hamburger
+      Html.toElement 30 30 hamburger
         |> clickable (Signal.message toolbarMailbox.address OpenNavDrawer),
       spacer lTitleMarginLeft 1,
       titleFromString title
