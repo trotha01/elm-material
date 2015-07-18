@@ -39,7 +39,7 @@ update action state =
         page
       NavBar page ->
         page
-  in case (Debug.watch "action" action) of
+  in case action of
     ToolbarAction action ->
       NavBar page
     NavAction (NavDrawer.SelectPage newPage) ->
