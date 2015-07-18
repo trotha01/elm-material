@@ -17,7 +17,6 @@ import Material.Foo exposing (Page, Pages, scrim)
  - Figure out what good comments look like
     http://package.elm-lang.org/help/documentation-format
  - Add type annotations to everything
- - Make subpackages
 -}
 
 -- MODEL
