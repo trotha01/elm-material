@@ -7,6 +7,7 @@ import Signal exposing (Mailbox)
 import Text exposing (fromString)
 import Window
 import Debug
+import Html
 
 import Material.Toolbar as Toolbar exposing (toolbarMailbox)
 import Material.NavDrawer as NavDrawer exposing (mailbox)
@@ -89,6 +90,7 @@ body (w, h) content =
 toolbarView : Int -> String -> Element
 toolbarView w title =
     Toolbar.toolbar w title
+    -- Html.toElement w 128 (Toolbar.toolbar w title)
 
 errorPage : String -> Page
 errorPage contents =

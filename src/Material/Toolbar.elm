@@ -1,12 +1,16 @@
 module Material.Toolbar where
 
-import Graphics.Element exposing (Element, image, color, container, midLeft, flow, right, spacer, leftAligned)
+import Graphics.Element exposing (Element, image, color, container, midLeft, flow, right, leftAligned)
 import Graphics.Input exposing (clickable)
-import Text exposing (Style, style, defaultStyle)
+import Text exposing (Style, defaultStyle)
 import Color exposing (green)
 import Svg exposing (Svg)
-import Html
+import List exposing (map)
+import Html exposing (Html)
+import Html.Events exposing (onClick)
+import Html.Attributes exposing (width, height, size, style)
 import Material.Icons.Navigation exposing (menu)
+import Flex
 
 -- MODEL
 type Action
@@ -21,6 +25,9 @@ toolbarIconSize = 24
 
 hamburger : Svg
 hamburger = menu Color.white 30
+
+menuOption : Html
+menuOption = Html.div [ onClick toolbarMailbox.address OpenNavDrawer ] [ hamburger ]
 
 -- Large Toolbar Sizing
 
@@ -42,31 +49,71 @@ lIconRowHeight = 56
 lTitleSize : Int
 lTitleSize = 112
 
-headerStyle : Style
-headerStyle = { defaultStyle | height <- Just 50 }
+titleSize : String
+titleSize = "50px"
 
+titleFromString : String -> Html
+titleFromString string = 
+  Html.div [ style [( "font-size", titleSize )] ] [Html.text string]
 
-titleFromString : String -> Element
-titleFromString string = leftAligned
-  (Text.fromString string
-    |> style headerStyle)
+spacer : Int -> Int -> Html
+spacer w h =
+  Html.div [ width w, height h ] []
 
 {-|
   toolbar takes in the width of the screen and a title string
--}
+--}
+{--}
 toolbar : Int -> String -> Element
 toolbar width title =
   container width lToolbarHeight midLeft
   (flow right
     [
-      spacer lToolbarMarginLeft 1,
-      Html.toElement 30 30 hamburger
-        |> clickable (Signal.message toolbarMailbox.address OpenNavDrawer),
-      spacer lTitleMarginLeft 1,
-      titleFromString title
+      Html.toElement lToolbarMarginLeft 1 (spacer lToolbarMarginLeft 1),
+      Html.toElement 30 30 menuOption,
+      Html.toElement lTitleMarginLeft 1 (spacer lTitleMarginLeft 1),
+      Html.toElement 600 50 (titleFromString title)
     ]
   )
   |> color green
+  --}
+
+{--
+toolbar : Int -> String -> Html
+toolbar width title =
+  Html.div [ style [ ("backgroundColor", "green" )] ]
+  [
+      (spacer lToolbarMarginLeft 1),
+      menuOption,
+      (spacer lTitleMarginLeft 1),
+      (titleFromString title)
+  ]
+--}
+
+hflow : List Html -> List Html
+hflow nodes =
+  map floatify nodes
+
+floatify : Html -> Html
+floatify node =
+  Html.div [ style [("float", "left")] ] [
+    node
+  ]
+
+{--
+toolbar : Int -> String -> Html
+toolbar width title =
+  Html.div [ style [ ("backgroundColor", "green" )] ]
+  [
+    Flex.row
+    [
+      (spacer lToolbarMarginLeft 1),
+      menuOption,
+      (spacer lTitleMarginLeft 1),
+      (titleFromString title)
+    ]
+  ]
+--}
 
 -- SIGNALS
 
