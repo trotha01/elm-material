@@ -27,7 +27,11 @@ hamburger : Svg
 hamburger = menu Color.white 30
 
 menuOption : Html
-menuOption = Html.div [ onClick toolbarMailbox.address OpenNavDrawer ] [ hamburger ]
+menuOption = Html.div
+    [ onClick toolbarMailbox.address OpenNavDrawer
+    , style [("cursor","pointer")]
+    ]
+    [ hamburger ]
 
 -- Large Toolbar Sizing
 
