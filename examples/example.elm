@@ -36,4 +36,5 @@ pages : Pages
 pages = [ helloWorld, components, patterns ]
 
 main : Signal Element
-main = Material.app pages
+main =
+   Material.app pages

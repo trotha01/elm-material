@@ -10,7 +10,7 @@ import Html exposing (Html)
 import Html.Events exposing (onClick)
 import Html.Attributes exposing (width, height, size, style)
 import Material.Icons.Navigation exposing (menu)
-import Flex
+-- import Flex
 
 -- MODEL
 type Action
