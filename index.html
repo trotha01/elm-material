@@ -6003,6 +6003,397 @@ Elm.Signal.make = function (_elm) {
                                ,message: message
                                ,forwardTo: forwardTo
                                ,Mailbox: Mailbox};
+};Elm.Native.Time = {};
+
+Elm.Native.Time.make = function(localRuntime)
+{
+	localRuntime.Native = localRuntime.Native || {};
+	localRuntime.Native.Time = localRuntime.Native.Time || {};
+	if (localRuntime.Native.Time.values)
+	{
+		return localRuntime.Native.Time.values;
+	}
+
+	var NS = Elm.Native.Signal.make(localRuntime);
+	var Maybe = Elm.Maybe.make(localRuntime);
+
+
+	// FRAMES PER SECOND
+
+	function fpsWhen(desiredFPS, isOn)
+	{
+		var msPerFrame = 1000 / desiredFPS;
+		var ticker = NS.input('fps-' + desiredFPS, null);
+
+		function notifyTicker()
+		{
+			localRuntime.notify(ticker.id, null);
+		}
+
+		function firstArg(x, y)
+		{
+			return x;
+		}
+
+		// input fires either when isOn changes, or when ticker fires.
+		// Its value is a tuple with the current timestamp, and the state of isOn
+		var input = NS.timestamp(A3(NS.map2, F2(firstArg), NS.dropRepeats(isOn), ticker));
+
+		var initialState = {
+			isOn: false,
+			time: localRuntime.timer.programStart,
+			delta: 0
+		};
+
+		var timeoutId;
+
+		function update(input, state)
+		{
+			var currentTime = input._0;
+			var isOn = input._1;
+			var wasOn = state.isOn;
+			var previousTime = state.time;
+
+			if (isOn)
+			{
+				timeoutId = localRuntime.setTimeout(notifyTicker, msPerFrame);
+			}
+			else if (wasOn)
+			{
+				clearTimeout(timeoutId);
+			}
+
+			return {
+				isOn: isOn,
+				time: currentTime,
+				delta: (isOn && !wasOn) ? 0 : currentTime - previousTime
+			};
+		}
+
+		return A2(
+			NS.map,
+			function(state) { return state.delta; },
+			A3(NS.foldp, F2(update), update(input.value, initialState), input)
+		);
+	}
+
+
+	// EVERY
+
+	function every(t)
+	{
+		var ticker = NS.input('every-' + t, null);
+		function tellTime()
+		{
+			localRuntime.notify(ticker.id, null);
+		}
+		var clock = A2(NS.map, fst, NS.timestamp(ticker));
+		setInterval(tellTime, t);
+		return clock;
+	}
+
+
+	function fst(pair)
+	{
+		return pair._0;
+	}
+
+
+	function read(s)
+	{
+		var t = Date.parse(s);
+		return isNaN(t) ? Maybe.Nothing : Maybe.Just(t);
+	}
+
+	return localRuntime.Native.Time.values = {
+		fpsWhen: F2(fpsWhen),
+		every: every,
+		toDate: function(t) { return new Date(t); },
+		read: read
+	};
+};
+Elm.Time = Elm.Time || {};
+Elm.Time.make = function (_elm) {
+   "use strict";
+   _elm.Time = _elm.Time || {};
+   if (_elm.Time.values) return _elm.Time.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Native$Signal = Elm.Native.Signal.make(_elm),
+   $Native$Time = Elm.Native.Time.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var _op = {};
+   var delay = $Native$Signal.delay;
+   var since = F2(function (time,signal) {
+      var stop = A2($Signal.map,
+      $Basics.always(-1),
+      A2(delay,time,signal));
+      var start = A2($Signal.map,$Basics.always(1),signal);
+      var delaydiff = A3($Signal.foldp,
+      F2(function (x,y) {    return x + y;}),
+      0,
+      A2($Signal.merge,start,stop));
+      return A2($Signal.map,
+      F2(function (x,y) {    return !_U.eq(x,y);})(0),
+      delaydiff);
+   });
+   var timestamp = $Native$Signal.timestamp;
+   var every = $Native$Time.every;
+   var fpsWhen = $Native$Time.fpsWhen;
+   var fps = function (targetFrames) {
+      return A2(fpsWhen,targetFrames,$Signal.constant(true));
+   };
+   var inMilliseconds = function (t) {    return t;};
+   var millisecond = 1;
+   var second = 1000 * millisecond;
+   var minute = 60 * second;
+   var hour = 60 * minute;
+   var inHours = function (t) {    return t / hour;};
+   var inMinutes = function (t) {    return t / minute;};
+   var inSeconds = function (t) {    return t / second;};
+   return _elm.Time.values = {_op: _op
+                             ,millisecond: millisecond
+                             ,second: second
+                             ,minute: minute
+                             ,hour: hour
+                             ,inMilliseconds: inMilliseconds
+                             ,inSeconds: inSeconds
+                             ,inMinutes: inMinutes
+                             ,inHours: inHours
+                             ,fps: fps
+                             ,fpsWhen: fpsWhen
+                             ,every: every
+                             ,timestamp: timestamp
+                             ,delay: delay
+                             ,since: since};
+};Elm.Easing = Elm.Easing || {};
+Elm.Easing.make = function (_elm) {
+   "use strict";
+   _elm.Easing = _elm.Easing || {};
+   if (_elm.Easing.values) return _elm.Easing.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Color = Elm.Color.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm),
+   $Time = Elm.Time.make(_elm);
+   var _op = {};
+   var cycle = F3(function (animation,d,t) {
+      return A2(animation,
+      1,
+      t / d - $Basics.toFloat($Basics.floor(t / d)));
+   });
+   var flip = F2(function (easing,time) {
+      return easing(1 - time);
+   });
+   var retour = F2(function (easing,time) {
+      return _U.cmp(time,0.5) < 0 ? easing(time * 2) : A2(flip,
+      easing,
+      (time - 0.5) * 2);
+   });
+   var invert = F2(function (easing,time) {
+      return 1 - easing(1 - time);
+   });
+   var inOut = F3(function (e1,e2,time) {
+      return _U.cmp(time,
+      0.5) < 0 ? e1(time * 2) / 2 : 0.5 + e2((time - 0.5) * 2) / 2;
+   });
+   var easeInElastic = function (time) {
+      var t$ = time - 1;
+      var p = 0.3;
+      var s = 7.5e-2;
+      return 0 - Math.pow(2,
+      10 * t$) * $Basics.sin((t$ - s) * (2 * $Basics.pi) / p);
+   };
+   var easeOutElastic = invert(easeInElastic);
+   var easeInOutElastic = A2(inOut,easeInElastic,easeOutElastic);
+   var easeOutBounce = function (time) {
+      var t4 = time - 2.65 / 2.75;
+      var t3 = time - 2.25 / 2.75;
+      var t2 = time - 1.5 / 2.75;
+      var a = 7.5625;
+      return _U.cmp(time,
+      1 / 2.75) < 0 ? a * time * time : _U.cmp(time,
+      2 / 2.75) < 0 ? a * t2 * t2 + 0.75 : _U.cmp(time,
+      2.5 / 2.75) < 0 ? a * t3 * t3 + 0.9375 : a * t4 * t4 + 0.984375;
+   };
+   var easeInBounce = invert(easeOutBounce);
+   var easeInOutBounce = A2(inOut,easeInBounce,easeOutBounce);
+   var easeInBack = function (time) {
+      return time * time * (2.70158 * time - 1.70158);
+   };
+   var easeOutBack = invert(easeInBack);
+   var easeInOutBack = A2(inOut,easeInBack,easeOutBack);
+   var easeOutCirc = function (time) {
+      return $Basics.sqrt(1 - Math.pow(time - 1,2));
+   };
+   var easeInCirc = invert(easeOutCirc);
+   var easeInOutCirc = A2(inOut,easeInCirc,easeOutCirc);
+   var easeInExpo = function (time) {
+      return Math.pow(2,10 * (time - 1));
+   };
+   var easeOutExpo = invert(easeInExpo);
+   var easeInOutExpo = A2(inOut,easeInExpo,easeOutExpo);
+   var easeOutSine = function (time) {
+      return $Basics.sin(time * ($Basics.pi / 2));
+   };
+   var easeInSine = invert(easeOutSine);
+   var easeInOutSine = A2(inOut,easeInSine,easeOutSine);
+   var easeInQuint = function (time) {
+      return Math.pow(time,5);
+   };
+   var easeOutQuint = invert(easeInQuint);
+   var easeInOutQuint = A2(inOut,easeInQuint,easeOutQuint);
+   var easeInQuart = function (time) {
+      return Math.pow(time,4);
+   };
+   var easeOutQuart = invert(easeInQuart);
+   var easeInOutQuart = A2(inOut,easeInQuart,easeOutQuart);
+   var easeInCubic = function (time) {
+      return Math.pow(time,3);
+   };
+   var easeOutCubic = invert(easeInCubic);
+   var easeInOutCubic = A2(inOut,easeInCubic,easeOutCubic);
+   var easeInQuad = function (time) {    return Math.pow(time,2);};
+   var easeOutQuad = invert(easeInQuad);
+   var easeInOutQuad = A2(inOut,easeInQuad,easeOutQuad);
+   var linear = $Basics.identity;
+   var pair = F4(function (interpolate,_p1,_p0,v) {
+      var _p2 = _p1;
+      var _p3 = _p0;
+      return {ctor: "_Tuple2"
+             ,_0: A3(interpolate,_p2._0,_p3._0,v)
+             ,_1: A3(interpolate,_p2._1,_p3._1,v)};
+   });
+   var $float = F3(function (from,to,v) {
+      return from + (to - from) * v;
+   });
+   var point2d = F3(function (from,to,v) {
+      return {x: A3($float,from.x,to.x,v)
+             ,y: A3($float,from.y,to.y,v)};
+   });
+   var point3d = F3(function (from,to,v) {
+      return {x: A3($float,from.x,to.x,v)
+             ,y: A3($float,from.y,to.y,v)
+             ,z: A3($float,from.z,to.z,v)};
+   });
+   var color = F3(function (from,to,v) {
+      var float$ = F3(function (from,to,v) {
+         return $Basics.round(A3($float,
+         $Basics.toFloat(from),
+         $Basics.toFloat(to),
+         v));
+      });
+      var _p4 = {ctor: "_Tuple2"
+                ,_0: $Color.toRgb(from)
+                ,_1: $Color.toRgb(to)};
+      var rgb1 = _p4._0;
+      var rgb2 = _p4._1;
+      var _p5 = {ctor: "_Tuple4"
+                ,_0: rgb1.red
+                ,_1: rgb1.green
+                ,_2: rgb1.blue
+                ,_3: rgb1.alpha};
+      var r1 = _p5._0;
+      var g1 = _p5._1;
+      var b1 = _p5._2;
+      var a1 = _p5._3;
+      var _p6 = {ctor: "_Tuple4"
+                ,_0: rgb2.red
+                ,_1: rgb2.green
+                ,_2: rgb2.blue
+                ,_3: rgb2.alpha};
+      var r2 = _p6._0;
+      var g2 = _p6._1;
+      var b2 = _p6._2;
+      var a2 = _p6._3;
+      return A4($Color.rgba,
+      A3(float$,r1,r2,v),
+      A3(float$,g1,g2,v),
+      A3(float$,b1,b2,v),
+      A3($float,a1,a2,v));
+   });
+   var bezier = F5(function (x1,y1,x2,y2,time) {
+      var casteljau = function (ps) {
+         casteljau: while (true) {
+            var _p7 = ps;
+            if (_p7.ctor === "::" && _p7._0.ctor === "_Tuple2" && _p7._1.ctor === "[]")
+            {
+                  return _p7._0._1;
+               } else {
+                  var _p8 = _p7;
+                  var _v3 = A3($List.map2,
+                  F2(function (x,y) {    return A4(pair,$float,x,y,time);}),
+                  _p8,
+                  A2($Maybe.withDefault,_U.list([]),$List.tail(_p8)));
+                  ps = _v3;
+                  continue casteljau;
+               }
+         }
+      };
+      return casteljau(_U.list([{ctor: "_Tuple2",_0: 0,_1: 0}
+                               ,{ctor: "_Tuple2",_0: x1,_1: y1}
+                               ,{ctor: "_Tuple2",_0: x2,_1: y2}
+                               ,{ctor: "_Tuple2",_0: 1,_1: 1}]));
+   });
+   var ease = F6(function (easing,
+   interpolation,
+   from,
+   to,
+   duration,
+   time) {
+      return A3(interpolation,
+      from,
+      to,
+      easing(A2($Basics.min,time / duration,1)));
+   });
+   return _elm.Easing.values = {_op: _op
+                               ,ease: ease
+                               ,$float: $float
+                               ,point2d: point2d
+                               ,point3d: point3d
+                               ,color: color
+                               ,pair: pair
+                               ,cycle: cycle
+                               ,invert: invert
+                               ,retour: retour
+                               ,inOut: inOut
+                               ,flip: flip
+                               ,bezier: bezier
+                               ,linear: linear
+                               ,easeInQuad: easeInQuad
+                               ,easeOutQuad: easeOutQuad
+                               ,easeInOutQuad: easeInOutQuad
+                               ,easeInCubic: easeInCubic
+                               ,easeOutCubic: easeOutCubic
+                               ,easeInOutCubic: easeInOutCubic
+                               ,easeInQuart: easeInQuart
+                               ,easeOutQuart: easeOutQuart
+                               ,easeInOutQuart: easeInOutQuart
+                               ,easeInQuint: easeInQuint
+                               ,easeOutQuint: easeOutQuint
+                               ,easeInOutQuint: easeInOutQuint
+                               ,easeInSine: easeInSine
+                               ,easeOutSine: easeOutSine
+                               ,easeInOutSine: easeInOutSine
+                               ,easeInExpo: easeInExpo
+                               ,easeOutExpo: easeOutExpo
+                               ,easeInOutExpo: easeInOutExpo
+                               ,easeInCirc: easeInCirc
+                               ,easeOutCirc: easeOutCirc
+                               ,easeInOutCirc: easeInOutCirc
+                               ,easeInBack: easeInBack
+                               ,easeOutBack: easeOutBack
+                               ,easeInOutBack: easeInOutBack
+                               ,easeInBounce: easeInBounce
+                               ,easeOutBounce: easeOutBounce
+                               ,easeInOutBounce: easeInOutBounce
+                               ,easeInElastic: easeInElastic
+                               ,easeOutElastic: easeOutElastic
+                               ,easeInOutElastic: easeInOutElastic};
 };Elm.Native.Json = {};
 
 Elm.Native.Json.make = function(localRuntime) {
@@ -12764,6 +13155,276 @@ Elm.Html.Events.make = function (_elm) {
                                     ,targetChecked: targetChecked
                                     ,keyCode: keyCode
                                     ,Options: Options};
+};Elm.Animation = Elm.Animation || {};
+Elm.Animation.make = function (_elm) {
+   "use strict";
+   _elm.Animation = _elm.Animation || {};
+   if (_elm.Animation.values) return _elm.Animation.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm),
+   $Time = Elm.Time.make(_elm);
+   var _op = {};
+   var isScheduled = F2(function (t,_p0) {
+      var _p1 = _p0;
+      return _U.cmp(t,_p1._0.start + _p1._0.delay) < 1;
+   });
+   var getTo = function (_p2) {
+      var _p3 = _p2;
+      return _p3._0.to;
+   };
+   var getFrom = function (_p4) {
+      var _p5 = _p4;
+      return _p5._0.from;
+   };
+   var getEase = function (_p6) {
+      var _p7 = _p6;
+      return _p7._0.ease;
+   };
+   var getDelay = function (_p8) {
+      var _p9 = _p8;
+      return _p9._0.delay;
+   };
+   var getStart = function (_p10) {
+      var _p11 = _p10;
+      return _p11._0.start;
+   };
+   var timeElapsed = F2(function (t,_p12) {
+      var _p13 = _p12;
+      return A2($Basics.max,0,t - (_p13._0.start + _p13._0.delay));
+   });
+   var defaultEase = function (x) {
+      return (1 - $Basics.cos($Basics.pi * x)) / 2;
+   };
+   var spd = F3(function (dos,from,to) {
+      var _p14 = dos;
+      if (_p14.ctor === "Duration") {
+            return $Basics.abs(to - from) / _p14._0;
+         } else {
+            return _p14._0;
+         }
+   });
+   var getSpeed = function (_p15) {
+      var _p16 = _p15;
+      return A3(spd,_p16._0.dos,_p16._0.from,_p16._0.to);
+   };
+   var dur = F3(function (dos,from,to) {
+      var _p17 = dos;
+      if (_p17.ctor === "Duration") {
+            return _p17._0;
+         } else {
+            return $Basics.abs(to - from) / _p17._0;
+         }
+   });
+   var animate = F2(function (t,_p18) {
+      var _p19 = _p18;
+      var _p23 = _p19._0.to;
+      var _p22 = _p19._0.start;
+      var _p21 = _p19._0.from;
+      var duration = A3(dur,_p19._0.dos,_p21,_p23);
+      var fr = A3($Basics.clamp,
+      0,
+      1,
+      (t - _p22 - _p19._0.delay) / duration);
+      var eased = _p19._0.ease(fr);
+      var correction = function () {
+         var _p20 = _p19._0.ramp;
+         if (_p20.ctor === "Nothing") {
+               return 0;
+            } else {
+               var from$ = _p20._0 * (t - _p22);
+               var eased$ = defaultEase(fr);
+               return from$ - from$ * eased$;
+            }
+      }();
+      return _p21 + (_p23 - _p21) * eased + correction;
+   });
+   var velocity = F2(function (t,u) {
+      var forwDiff = A2(animate,t + 10,u);
+      var backDiff = A2(animate,t - 10,u);
+      return (forwDiff - backDiff) / 20;
+   });
+   var timeRemaining = F2(function (t,_p24) {
+      var _p25 = _p24;
+      var duration = A3(dur,_p25._0.dos,_p25._0.from,_p25._0.to);
+      return A2($Basics.max,
+      0,
+      _p25._0.start + _p25._0.delay + duration - t);
+   });
+   var getDuration = function (_p26) {
+      var _p27 = _p26;
+      return A3(dur,_p27._0.dos,_p27._0.from,_p27._0.to);
+   };
+   var equals = F2(function (_p29,_p28) {
+      var _p30 = _p29;
+      var _p33 = _p30._0;
+      var _p31 = _p28;
+      var _p32 = _p31._0;
+      return _U.eq(_p33.start + _p33.delay,
+      _p32.start + _p32.delay) && (_U.eq(_p33.from,
+      _p32.from) && (_U.eq(_p33.to,_p32.to) && (_U.eq(_p33.ramp,
+      _p32.ramp) && ((_U.eq(_p33.dos,_p32.dos) || _U.cmp(1.0e-3,
+      $Basics.abs(A3(dur,_p33.dos,_p33.from,_p33.to) - A3(dur,
+      _p32.dos,
+      _p32.from,
+      _p32.to))) > -1) && A2($List.all,
+      function (t) {
+         return _U.eq(_p33.ease(t),_p32.ease(t));
+      },
+      _U.list([0.1,0.3,0.7,0.9]))))));
+   });
+   var isRunning = F2(function (t,_p34) {
+      var _p35 = _p34;
+      var _p37 = _p35._0.start;
+      var _p36 = _p35._0.delay;
+      var duration = A3(dur,_p35._0.dos,_p35._0.from,_p35._0.to);
+      return _U.cmp(t,_p37 + _p36) > 0 && _U.cmp(t,
+      _p37 + _p36 + duration) < 0;
+   });
+   var isDone = F2(function (t,_p38) {
+      var _p39 = _p38;
+      var duration = A3(dur,_p39._0.dos,_p39._0.from,_p39._0.to);
+      return _U.cmp(t,_p39._0.start + _p39._0.delay + duration) > -1;
+   });
+   var A = function (a) {    return {ctor: "A",_0: a};};
+   var undo = F2(function (t,_p40) {
+      var _p41 = _p40;
+      var _p42 = _p41._0;
+      return A(_U.update(_p42,
+      {from: _p42.to
+      ,to: _p42.from
+      ,start: t
+      ,delay: 0 - A2(timeRemaining,t,_p41)
+      ,ramp: $Maybe.Nothing
+      ,ease: function (t) {
+         return 1 - _p42.ease(1 - t);
+      }}));
+   });
+   var delay = F2(function (x,_p43) {
+      var _p44 = _p43;
+      return A(_U.update(_p44._0,{delay: x}));
+   });
+   var ease = F2(function (x,_p45) {
+      var _p46 = _p45;
+      return A(_U.update(_p46._0,{ease: x}));
+   });
+   var from = F2(function (x,_p47) {
+      var _p48 = _p47;
+      return A(_U.update(_p48._0,{from: x,ramp: $Maybe.Nothing}));
+   });
+   var to = F2(function (x,_p49) {
+      var _p50 = _p49;
+      return A(_U.update(_p50._0,{to: x,ramp: $Maybe.Nothing}));
+   });
+   var AnimRecord = F7(function (a,b,c,d,e,f,g) {
+      return {start: a
+             ,delay: b
+             ,dos: c
+             ,ramp: d
+             ,ease: e
+             ,from: f
+             ,to: g};
+   });
+   var Speed = function (a) {    return {ctor: "Speed",_0: a};};
+   var speed = F2(function (x,_p51) {
+      var _p52 = _p51;
+      return A(_U.update(_p52._0,{dos: Speed($Basics.abs(x))}));
+   });
+   var Duration = function (a) {
+      return {ctor: "Duration",_0: a};
+   };
+   var defaultDuration = Duration(750 * $Time.millisecond);
+   var animation = function (t) {
+      return A(A7(AnimRecord,
+      t,
+      0,
+      defaultDuration,
+      $Maybe.Nothing,
+      defaultEase,
+      0,
+      1));
+   };
+   var retarget = F3(function (t,newTo,_p53) {
+      var _p54 = _p53;
+      var _p57 = _p54;
+      var _p56 = _p54._0;
+      if (_U.eq(newTo,_p56.to)) return _p57; else if (_U.eq(_p56.from,
+         _p56.to)) return A(_U.update(_p56,
+            {start: t
+            ,to: newTo
+            ,dos: defaultDuration
+            ,ramp: $Maybe.Nothing})); else if (A2(isScheduled,t,_p57))
+            return A(_U.update(_p56,{to: newTo,ramp: $Maybe.Nothing}));
+            else if (A2(isDone,t,_p57)) return A(_U.update(_p56,
+                  {start: t
+                  ,delay: 0
+                  ,from: _p56.to
+                  ,to: newTo
+                  ,ramp: $Maybe.Nothing})); else {
+                     var newSpeed = function () {
+                        var _p55 = _p56.dos;
+                        if (_p55.ctor === "Speed") {
+                              return _p56.dos;
+                           } else {
+                              return Speed(A3(spd,_p56.dos,_p56.from,_p56.to));
+                           }
+                     }();
+                     var pos = A2(animate,t,_p57);
+                     var vel = A2(velocity,t,_p57);
+                     return A(A7(AnimRecord,
+                     t,
+                     0,
+                     newSpeed,
+                     $Maybe.Just(vel),
+                     _p56.ease,
+                     pos,
+                     newTo));
+                  }
+   });
+   var $static = function (x) {
+      return A(A7(AnimRecord,
+      0,
+      0,
+      Duration(0),
+      $Maybe.Nothing,
+      defaultEase,
+      x,
+      x));
+   };
+   var duration = F2(function (x,_p58) {
+      var _p59 = _p58;
+      return A(_U.update(_p59._0,{dos: Duration(x)}));
+   });
+   return _elm.Animation.values = {_op: _op
+                                  ,animation: animation
+                                  ,$static: $static
+                                  ,animate: animate
+                                  ,duration: duration
+                                  ,speed: speed
+                                  ,delay: delay
+                                  ,ease: ease
+                                  ,from: from
+                                  ,to: to
+                                  ,undo: undo
+                                  ,retarget: retarget
+                                  ,getStart: getStart
+                                  ,getDuration: getDuration
+                                  ,getSpeed: getSpeed
+                                  ,getDelay: getDelay
+                                  ,getEase: getEase
+                                  ,getFrom: getFrom
+                                  ,getTo: getTo
+                                  ,equals: equals
+                                  ,velocity: velocity
+                                  ,timeElapsed: timeElapsed
+                                  ,timeRemaining: timeRemaining
+                                  ,isScheduled: isScheduled
+                                  ,isRunning: isRunning
+                                  ,isDone: isDone};
 };Elm.Material = Elm.Material || {};
 Elm.Material.Toolbar = Elm.Material.Toolbar || {};
 Elm.Material.Toolbar.make = function (_elm) {
@@ -12908,6 +13569,7 @@ Elm.Material.NavDrawer.make = function (_elm) {
    if (_elm.Material.NavDrawer.values)
    return _elm.Material.NavDrawer.values;
    var _U = Elm.Native.Utils.make(_elm),
+   $Animation = Elm.Animation.make(_elm),
    $Basics = Elm.Basics.make(_elm),
    $Color = Elm.Color.make(_elm),
    $Debug = Elm.Debug.make(_elm),
@@ -12918,8 +13580,11 @@ Elm.Material.NavDrawer.make = function (_elm) {
    $Maybe = Elm.Maybe.make(_elm),
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm),
-   $Text = Elm.Text.make(_elm);
+   $Text = Elm.Text.make(_elm),
+   $Time = Elm.Time.make(_elm);
    var _op = {};
+   var drawerOptionHeight = 100;
+   var drawerWidth = 340;
    var SelectPage = function (a) {
       return {ctor: "SelectPage",_0: a};
    };
@@ -12927,8 +13592,8 @@ Elm.Material.NavDrawer.make = function (_elm) {
       return A2($Graphics$Input.clickable,
       A2($Signal.message,address,SelectPage(page)),
       A4($Graphics$Element.container,
-      340,
-      100,
+      drawerWidth,
+      drawerOptionHeight,
       $Graphics$Element.middle,
       $Graphics$Element.centered($Text.fromString(page.title))));
    });
@@ -12937,18 +13602,82 @@ Elm.Material.NavDrawer.make = function (_elm) {
       $Graphics$Element.down,
       A2($List.map,drawerOption(address),pages));
    });
-   var navigationDrawer = F3(function (_p0,pages,mailbox) {
+   var navigationDrawer = F5(function (start,
+   _p0,
+   pages,
+   mailbox,
+   clock) {
       var _p1 = _p0;
-      return A2($Graphics$Element.color,
+      var widthAnimation = A2($Animation.duration,
+      400,
+      A2($Animation.to,
+      drawerWidth,
+      A2($Animation.from,0,$Animation.animation(start))));
+      var width = A2($Animation.animate,clock,widthAnimation);
+      return A4($Graphics$Element.container,
+      $Basics.round(width),
+      _p1._1,
+      $Graphics$Element.middle,
+      A2($Graphics$Element.color,
       $Color.white,
-      A2(drawerOptions,mailbox.address,pages));
+      A2(drawerOptions,mailbox.address,pages)));
+   });
+   var openNavigationDrawer = F5(function (start,
+   _p2,
+   pages,
+   mailbox,
+   clock) {
+      var _p3 = _p2;
+      var widthAnimation = A2($Animation.duration,
+      400,
+      A2($Animation.to,
+      drawerWidth,
+      A2($Animation.from,0,$Animation.animation(start))));
+      var width = A2($Animation.animate,clock,widthAnimation);
+      var opened = _U.eq(width,drawerWidth);
+      return {ctor: "_Tuple2"
+             ,_0: opened
+             ,_1: A4($Graphics$Element.container,
+             $Basics.round(width),
+             _p3._1,
+             $Graphics$Element.middle,
+             A2($Graphics$Element.color,
+             $Color.white,
+             A2(drawerOptions,mailbox.address,pages)))};
+   });
+   var closeNavigationDrawer = F5(function (start,
+   _p4,
+   pages,
+   mailbox,
+   clock) {
+      var _p5 = _p4;
+      var widthAnimation = A2($Animation.duration,
+      400,
+      A2($Animation.to,
+      0,
+      A2($Animation.from,drawerWidth,$Animation.animation(start))));
+      var width = A2($Animation.animate,clock,widthAnimation);
+      var closed = _U.eq(width,0);
+      return {ctor: "_Tuple2"
+             ,_0: closed
+             ,_1: A4($Graphics$Element.container,
+             $Basics.round(width),
+             _p5._1,
+             $Graphics$Element.middle,
+             A2($Graphics$Element.color,
+             $Color.white,
+             A2(drawerOptions,mailbox.address,pages)))};
    });
    var mailbox = function (page) {
       return $Signal.mailbox(SelectPage(page));
    };
    return _elm.Material.NavDrawer.values = {_op: _op
                                            ,SelectPage: SelectPage
+                                           ,drawerWidth: drawerWidth
+                                           ,drawerOptionHeight: drawerOptionHeight
                                            ,navigationDrawer: navigationDrawer
+                                           ,openNavigationDrawer: openNavigationDrawer
+                                           ,closeNavigationDrawer: closeNavigationDrawer
                                            ,drawerOptions: drawerOptions
                                            ,drawerOption: drawerOption
                                            ,mailbox: mailbox};
@@ -12970,6 +13699,7 @@ Elm.Material.make = function (_elm) {
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm),
    $Text = Elm.Text.make(_elm),
+   $Time = Elm.Time.make(_elm),
    $Window = Elm.Window.make(_elm);
    var _op = {};
    var errorPage = function (contents) {
@@ -12995,53 +13725,102 @@ Elm.Material.make = function (_elm) {
       _U.list([A2(toolbarView,_p4,page.title)
               ,A2(body,{ctor: "_Tuple2",_0: _p4,_1: 180},page.content)]));
    });
-   var view = F4(function (pages,navMailbox,_p5,state) {
-      var _p6 = _p5;
-      var _p7 = state;
-      if (_p7.ctor === "MainView") {
-            return $Graphics$Element.centered($Text.fromString("here"));
-         } else {
-            return $Graphics$Element.centered($Text.fromString("here2"));
-         }
+   var State = F3(function (a,b,c) {
+      return {view: a,page: b,clock: c};
    });
-   var update = F2(function (action,state) {    return state;});
-   var NavBar = function (a) {    return {ctor: "NavBar",_0: a};};
-   var MainView = function (a) {
-      return {ctor: "MainView",_0: a};
+   var CloseNav = function (a) {
+      return {ctor: "CloseNav",_0: a};
    };
+   var OpenNav = function (a) {
+      return {ctor: "OpenNav",_0: a};
+   };
+   var MainView = {ctor: "MainView"};
+   var update = F2(function (action,state) {
+      var _p5 = action;
+      switch (_p5.ctor)
+      {case "ToolbarAction": return _U.update(state,
+           {view: OpenNav(state.clock)});
+         case "NavAction": return _U.update(state,
+           {view: MainView,page: _p5._0._0});
+         case "CloseNavDrawer": return _U.update(state,
+           {view: CloseNav(state.clock)});
+         default: return _U.update(state,{clock: state.clock + _p5._0});}
+   });
+   var Tick = function (a) {    return {ctor: "Tick",_0: a};};
+   var CloseNavDrawer = {ctor: "CloseNavDrawer"};
+   var appMailbox = $Signal.mailbox(CloseNavDrawer);
+   var navView = F7(function (open,
+   start,
+   now,
+   _p6,
+   pages,
+   currentPage,
+   navMailbox) {
+      var _p7 = _p6;
+      var _p10 = _p7._0;
+      var _p9 = _p7._1;
+      var _p8 = open ? A5($Material$NavDrawer.openNavigationDrawer,
+      start,
+      {ctor: "_Tuple2",_0: _p10,_1: _p9},
+      pages,
+      navMailbox,
+      now) : A5($Material$NavDrawer.closeNavigationDrawer,
+      start,
+      {ctor: "_Tuple2",_0: _p10,_1: _p9},
+      pages,
+      navMailbox,
+      now);
+      var navDrawer = _p8._1;
+      return $Graphics$Element.layers(_U.list([A2($Graphics$Element.flow,
+                                              $Graphics$Element.down,
+                                              _U.list([A2(toolbarView,_p10,currentPage.title)
+                                                      ,A2(body,
+                                                      {ctor: "_Tuple2",_0: _p10,_1: 180},
+                                                      currentPage.content)]))
+                                              ,A2($Graphics$Element.flow,
+                                              $Graphics$Element.right,
+                                              _U.list([navDrawer
+                                                      ,A2($Graphics$Input.clickable,
+                                                      A2($Signal.message,appMailbox.address,CloseNavDrawer),
+                                                      $Material$Foo.scrim({ctor: "_Tuple2",_0: _p10,_1: _p9}))]))]));
+   });
+   var view = F4(function (pages,navMailbox,_p11,state) {
+      var _p12 = _p11;
+      var _p15 = _p12._0;
+      var _p14 = _p12._1;
+      var _p13 = state.view;
+      switch (_p13.ctor)
+      {case "MainView": return A2(pageView,
+           {ctor: "_Tuple2",_0: _p15,_1: _p14},
+           state.page);
+         case "OpenNav": return A7(navView,
+           true,
+           _p13._0,
+           state.clock,
+           {ctor: "_Tuple2",_0: _p15,_1: _p14},
+           pages,
+           state.page,
+           navMailbox);
+         default: return A7(navView,
+           false,
+           _p13._0,
+           state.clock,
+           {ctor: "_Tuple2",_0: _p15,_1: _p14},
+           pages,
+           state.page,
+           navMailbox);}
+   });
    var NavAction = function (a) {
       return {ctor: "NavAction",_0: a};
    };
    var ToolbarAction = function (a) {
       return {ctor: "ToolbarAction",_0: a};
    };
-   var CloseNavDrawer = {ctor: "CloseNavDrawer"};
-   var appMailbox = $Signal.mailbox(CloseNavDrawer);
-   var navView = F4(function (_p8,pages,currentPage,navMailbox) {
-      var _p9 = _p8;
-      var _p11 = _p9._0;
-      var _p10 = _p9._1;
-      return $Graphics$Element.layers(_U.list([A2($Graphics$Element.flow,
-                                              $Graphics$Element.down,
-                                              _U.list([A2(toolbarView,_p11,currentPage.title)
-                                                      ,A2(body,
-                                                      {ctor: "_Tuple2",_0: _p11,_1: 180},
-                                                      currentPage.content)]))
-                                              ,A2($Graphics$Element.flow,
-                                              $Graphics$Element.right,
-                                              _U.list([A3($Material$NavDrawer.navigationDrawer,
-                                                      {ctor: "_Tuple2",_0: _p11,_1: _p10},
-                                                      pages,
-                                                      navMailbox)
-                                                      ,A2($Graphics$Input.clickable,
-                                                      A2($Signal.message,appMailbox.address,CloseNavDrawer),
-                                                      $Material$Foo.scrim({ctor: "_Tuple2",_0: _p11,_1: _p10}))]))]));
-   });
    var app = function (pages) {
       var initialPage = function () {
-         var _p12 = $List.head(pages);
-         if (_p12.ctor === "Just") {
-               return _p12._0;
+         var _p16 = $List.head(pages);
+         if (_p16.ctor === "Just") {
+               return _p16._0;
             } else {
                return errorPage("No pages found!");
             }
@@ -13052,19 +13831,23 @@ Elm.Material.make = function (_elm) {
       $Window.dimensions,
       A3($Signal.foldp,
       update,
-      MainView(initialPage),
+      {view: MainView,page: initialPage,clock: 0},
       $Signal.mergeMany(_U.list([A2($Signal.map,
                                 ToolbarAction,
                                 $Material$Toolbar.toolbarMailbox.signal)
                                 ,A2($Signal.map,NavAction,navMailbox.signal)
+                                ,A2($Signal.map,Tick,$Time.fps(60))
                                 ,appMailbox.signal]))));
    };
    return _elm.Material.values = {_op: _op
-                                 ,CloseNavDrawer: CloseNavDrawer
                                  ,ToolbarAction: ToolbarAction
                                  ,NavAction: NavAction
+                                 ,CloseNavDrawer: CloseNavDrawer
+                                 ,Tick: Tick
                                  ,MainView: MainView
-                                 ,NavBar: NavBar
+                                 ,OpenNav: OpenNav
+                                 ,CloseNav: CloseNav
+                                 ,State: State
                                  ,update: update
                                  ,view: view
                                  ,pageView: pageView
