@@ -6394,6 +6394,52 @@ Elm.Easing.make = function (_elm) {
                                ,easeInElastic: easeInElastic
                                ,easeOutElastic: easeOutElastic
                                ,easeInOutElastic: easeInOutElastic};
+};Elm.Native.Vendor = Elm.Native.Vendor || {};
+Elm.Native.Vendor.make = function(elm) {
+    elm.Native = elm.Native || {};
+    elm.Native.Vendor = elm.Native.Vendor || {};
+    if (elm.Native.Vendor.values) return elm.Native.Vendor.values;
+
+    //  http://davidwalsh.name/vendor-prefix
+    var styles = window.getComputedStyle(document.documentElement, '');
+    var vendorPrefix = (Array.prototype.slice
+        .call(styles)
+        .join('')
+        .match(/-(moz|webkit|ms)-/) || (styles.OLink === '' && ['', 'o'])
+    )[1];
+
+    return elm.Native.Vendor.values = { prefix: vendorPrefix };
+};
+Elm.Vendor = Elm.Vendor || {};
+Elm.Vendor.make = function (_elm) {
+   "use strict";
+   _elm.Vendor = _elm.Vendor || {};
+   if (_elm.Vendor.values) return _elm.Vendor.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Native$Vendor = Elm.Native.Vendor.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var _op = {};
+   var Unknown = {ctor: "Unknown"};
+   var O = {ctor: "O"};
+   var MS = {ctor: "MS"};
+   var Webkit = {ctor: "Webkit"};
+   var Moz = {ctor: "Moz"};
+   var prefix = _U.eq($Native$Vendor.prefix,
+   "webkit") ? Webkit : _U.eq($Native$Vendor.prefix,
+   "moz") ? Moz : _U.eq($Native$Vendor.prefix,
+   "ms") ? MS : _U.eq($Native$Vendor.prefix,"o") ? O : Unknown;
+   return _elm.Vendor.values = {_op: _op
+                               ,prefix: prefix
+                               ,Moz: Moz
+                               ,Webkit: Webkit
+                               ,MS: MS
+                               ,O: O
+                               ,Unknown: Unknown};
 };Elm.Native.Json = {};
 
 Elm.Native.Json.make = function(localRuntime) {
@@ -13425,6 +13471,247 @@ Elm.Animation.make = function (_elm) {
                                   ,isScheduled: isScheduled
                                   ,isRunning: isRunning
                                   ,isDone: isDone};
+};Elm.Flex = Elm.Flex || {};
+Elm.Flex.make = function (_elm) {
+   "use strict";
+   _elm.Flex = _elm.Flex || {};
+   if (_elm.Flex.values) return _elm.Flex.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm),
+   $Vendor = Elm.Vendor.make(_elm);
+   var _op = {};
+   var alignSelf = function (alignment) {
+      var value = function () {
+         var _p0 = alignment;
+         switch (_p0.ctor)
+         {case "Start": return "flex-start";
+            case "Center": return "center";
+            case "End": return "flex-end";
+            case "Stretch": return "stretch";
+            default: return "baseline";}
+      }();
+      return _U.list([{ctor: "_Tuple2"
+                      ,_0: "-webkit-align-self"
+                      ,_1: value}
+                     ,{ctor: "_Tuple2",_0: "-ms-flex-item-align",_1: value}
+                     ,{ctor: "_Tuple2",_0: "align-self",_1: value}]);
+   };
+   var order = function (value) {
+      var string = $Basics.toString(value);
+      return _U.list([{ctor: "_Tuple2"
+                      ,_0: "-webkit-box-ordinal-group"
+                      ,_1: string}
+                     ,{ctor: "_Tuple2",_0: "-webkit-order",_1: string}
+                     ,{ctor: "_Tuple2",_0: "-ms-flex-order",_1: string}
+                     ,{ctor: "_Tuple2",_0: "-order",_1: string}]);
+   };
+   var flex = F3(function (grow,shrink,basis) {
+      var shrinkString = $Basics.toString(shrink);
+      var growString = $Basics.toString(grow);
+      var value = A2($Basics._op["++"],
+      growString,
+      A2($Basics._op["++"],
+      " ",
+      A2($Basics._op["++"],
+      shrinkString,
+      A2($Basics._op["++"]," ",basis))));
+      return _U.list([{ctor: "_Tuple2"
+                      ,_0: "-webkit-box-flex"
+                      ,_1: growString}
+                     ,{ctor: "_Tuple2",_0: "-webkit-flex",_1: value}
+                     ,{ctor: "_Tuple2",_0: "-ms-flex",_1: value}
+                     ,{ctor: "_Tuple2",_0: "flex",_1: value}]);
+   });
+   var basis = function (basisValue) {
+      return _U.list([{ctor: "_Tuple2"
+                      ,_0: "-webkit-flex-basis"
+                      ,_1: basisValue}
+                     ,{ctor: "_Tuple2",_0: "-ms-flex-preferred-size",_1: basisValue}
+                     ,{ctor: "_Tuple2",_0: "flex-basis",_1: basisValue}]);
+   };
+   var shrink = function (shrinkValue) {
+      var string = $Basics.toString(shrinkValue);
+      return _U.list([{ctor: "_Tuple2"
+                      ,_0: "-webkit-flex-shrink"
+                      ,_1: string}
+                     ,{ctor: "_Tuple2",_0: "-ms-flex-negative",_1: string}
+                     ,{ctor: "_Tuple2",_0: "flex-shrink",_1: string}]);
+   };
+   var grow = function (growValue) {
+      var string = $Basics.toString(growValue);
+      return _U.list([{ctor: "_Tuple2"
+                      ,_0: "-webkit-box-flex"
+                      ,_1: string}
+                     ,{ctor: "_Tuple2",_0: "-webkit-flex-grow",_1: string}
+                     ,{ctor: "_Tuple2",_0: "-ms-flex-positive",_1: string}
+                     ,{ctor: "_Tuple2",_0: "flex-grow",_1: string}]);
+   };
+   var justifyContent = function (alignment) {
+      var _p1 = function () {
+         var _p2 = alignment;
+         switch (_p2.ctor)
+         {case "Start": return {ctor: "_Tuple3"
+                               ,_0: "start"
+                               ,_1: "start"
+                               ,_2: "flex-start"};
+            case "Center": return {ctor: "_Tuple3"
+                                  ,_0: "center"
+                                  ,_1: "center"
+                                  ,_2: "center"};
+            case "End": return {ctor: "_Tuple3"
+                               ,_0: "end"
+                               ,_1: "end"
+                               ,_2: "flex-end"};
+            case "Stretch": return {ctor: "_Tuple3"
+                                   ,_0: "justify"
+                                   ,_1: "justify"
+                                   ,_2: "space-between"};
+            default: return {ctor: "_Tuple3"
+                            ,_0: "none"
+                            ,_1: "distribute"
+                            ,_2: "space-around"};}
+      }();
+      var webkitValue = _p1._0;
+      var msValue = _p1._1;
+      var value = _p1._2;
+      return _U.list([{ctor: "_Tuple2"
+                      ,_0: "-webkit-box-pack"
+                      ,_1: webkitValue}
+                     ,{ctor: "_Tuple2",_0: "-webkit-justify-content",_1: value}
+                     ,{ctor: "_Tuple2",_0: "-ms-flex-pack",_1: msValue}
+                     ,{ctor: "_Tuple2",_0: "justify-content",_1: value}]);
+   };
+   var alignItems = function (alignment) {
+      var _p3 = function () {
+         var _p4 = alignment;
+         switch (_p4.ctor)
+         {case "Start": return {ctor: "_Tuple2"
+                               ,_0: "start"
+                               ,_1: "flex-start"};
+            case "Center": return {ctor: "_Tuple2"
+                                  ,_0: "center"
+                                  ,_1: "center"};
+            case "End": return {ctor: "_Tuple2",_0: "end",_1: "flex-end"};
+            case "Stretch": return {ctor: "_Tuple2"
+                                   ,_0: "stretch"
+                                   ,_1: "stretch"};
+            default: return {ctor: "_Tuple2"
+                            ,_0: "baseline"
+                            ,_1: "baseline"};}
+      }();
+      var vendorValue = _p3._0;
+      var value = _p3._1;
+      return _U.list([{ctor: "_Tuple2"
+                      ,_0: "-webkit-box-align"
+                      ,_1: vendorValue}
+                     ,{ctor: "_Tuple2",_0: "-webkit-align-items",_1: value}
+                     ,{ctor: "_Tuple2",_0: "-ms-flex-align",_1: vendorValue}
+                     ,{ctor: "_Tuple2",_0: "align-items",_1: value}]);
+   };
+   var wrap = function (wrapValue) {
+      var _p5 = function () {
+         var _p6 = wrapValue;
+         switch (_p6.ctor)
+         {case "Wrap": return {ctor: "_Tuple2",_0: "wrap",_1: "wrap"};
+            case "NoWrap": return {ctor: "_Tuple2",_0: "none",_1: "nowrap"};
+            default: return {ctor: "_Tuple2"
+                            ,_0: "wrap-reverse"
+                            ,_1: "wrap-reverse"};}
+      }();
+      var vendorValue = _p5._0;
+      var value = _p5._1;
+      return _U.list([{ctor: "_Tuple2"
+                      ,_0: "-webkit-flex-wrap"
+                      ,_1: value}
+                     ,{ctor: "_Tuple2",_0: "-ms-flex-wrap",_1: vendorValue}
+                     ,{ctor: "_Tuple2",_0: "flex-wrap",_1: value}]);
+   };
+   var direction = function (directionValue) {
+      var _p7 = function () {
+         var _p8 = directionValue;
+         switch (_p8.ctor)
+         {case "Horizontal": return {ctor: "_Tuple3"
+                                    ,_0: "normal"
+                                    ,_1: "horizontal"
+                                    ,_2: "row"};
+            case "Vertical": return {ctor: "_Tuple3"
+                                    ,_0: "normal"
+                                    ,_1: "vertical"
+                                    ,_2: "column"};
+            case "HorizontalReverse": return {ctor: "_Tuple3"
+                                             ,_0: "reverse"
+                                             ,_1: "horizontal"
+                                             ,_2: "row-reverse"};
+            default: return {ctor: "_Tuple3"
+                            ,_0: "reverse"
+                            ,_1: "vertical"
+                            ,_2: "column-reverse"};}
+      }();
+      var boxDirection = _p7._0;
+      var boxOrientation = _p7._1;
+      var value = _p7._2;
+      return _U.list([{ctor: "_Tuple2"
+                      ,_0: "-webkit-box-direction"
+                      ,_1: boxDirection}
+                     ,{ctor: "_Tuple2",_0: "-webkit-box-orient",_1: boxOrientation}
+                     ,{ctor: "_Tuple2",_0: "-webkit-flex-direction",_1: value}
+                     ,{ctor: "_Tuple2",_0: "-ms-flex-direction",_1: value}
+                     ,{ctor: "_Tuple2",_0: "flex-direction",_1: value}]);
+   };
+   var flow = F2(function (directionValue,wrapValue) {
+      return A2($Basics._op["++"],
+      direction(directionValue),
+      wrap(wrapValue));
+   });
+   var display = function () {
+      var displayValue = _U.eq($Vendor.prefix,
+      $Vendor.Webkit) ? "-webkit-flex" : "flex";
+      return _U.list([{ctor: "_Tuple2"
+                      ,_0: "display"
+                      ,_1: displayValue}]);
+   }();
+   var WrapReverse = {ctor: "WrapReverse"};
+   var NoWrap = {ctor: "NoWrap"};
+   var Wrap = {ctor: "Wrap"};
+   var Surround = {ctor: "Surround"};
+   var Stretch = {ctor: "Stretch"};
+   var End = {ctor: "End"};
+   var Center = {ctor: "Center"};
+   var Start = {ctor: "Start"};
+   var VerticalReverse = {ctor: "VerticalReverse"};
+   var HorizontalReverse = {ctor: "HorizontalReverse"};
+   var Vertical = {ctor: "Vertical"};
+   var Horizontal = {ctor: "Horizontal"};
+   return _elm.Flex.values = {_op: _op
+                             ,Horizontal: Horizontal
+                             ,Vertical: Vertical
+                             ,HorizontalReverse: HorizontalReverse
+                             ,VerticalReverse: VerticalReverse
+                             ,Start: Start
+                             ,Center: Center
+                             ,End: End
+                             ,Stretch: Stretch
+                             ,Surround: Surround
+                             ,Wrap: Wrap
+                             ,NoWrap: NoWrap
+                             ,WrapReverse: WrapReverse
+                             ,display: display
+                             ,flow: flow
+                             ,direction: direction
+                             ,wrap: wrap
+                             ,alignItems: alignItems
+                             ,justifyContent: justifyContent
+                             ,grow: grow
+                             ,shrink: shrink
+                             ,basis: basis
+                             ,flex: flex
+                             ,order: order
+                             ,alignSelf: alignSelf};
 };Elm.Material = Elm.Material || {};
 Elm.Material.Toolbar = Elm.Material.Toolbar || {};
 Elm.Material.Toolbar.make = function (_elm) {
@@ -13437,7 +13724,7 @@ Elm.Material.Toolbar.make = function (_elm) {
    $Basics = Elm.Basics.make(_elm),
    $Color = Elm.Color.make(_elm),
    $Debug = Elm.Debug.make(_elm),
-   $Graphics$Element = Elm.Graphics.Element.make(_elm),
+   $Flex = Elm.Flex.make(_elm),
    $Html = Elm.Html.make(_elm),
    $Html$Attributes = Elm.Html.Attributes.make(_elm),
    $Html$Events = Elm.Html.Events.make(_elm),
@@ -13460,7 +13747,9 @@ Elm.Material.Toolbar.make = function (_elm) {
    };
    var spacer = F2(function (w,h) {
       return A2($Html.div,
+      A2($Basics._op["++"],
       _U.list([$Html$Attributes.width(w),$Html$Attributes.height(h)]),
+      _U.list([$Html$Attributes.style($Flex.shrink(1))])),
       _U.list([]));
    });
    var titleSize = "50px";
@@ -13468,7 +13757,8 @@ Elm.Material.Toolbar.make = function (_elm) {
       return A2($Html.div,
       _U.list([$Html$Attributes.style(_U.list([{ctor: "_Tuple2"
                                                ,_0: "font-size"
-                                               ,_1: titleSize}]))]),
+                                               ,_1: titleSize}
+                                              ,{ctor: "_Tuple2",_0: "padding",_1: "16px"}]))]),
       _U.list([$Html.text(string)]));
    };
    var lTitleSize = 112;
@@ -13487,27 +13777,24 @@ Elm.Material.Toolbar.make = function (_elm) {
    _U.list([A2($Html$Events.onClick,mailbox.address,OpenNavDrawer)
            ,$Html$Attributes.style(_U.list([{ctor: "_Tuple2"
                                             ,_0: "cursor"
-                                            ,_1: "pointer"}]))]),
+                                            ,_1: "pointer"}
+                                           ,{ctor: "_Tuple2",_0: "padding",_1: "16px"}]))]),
    _U.list([hamburger]));
    var view = F2(function (width,title) {
-      return A2($Graphics$Element.color,
-      $Color.green,
-      A4($Graphics$Element.container,
-      width,
-      lToolbarHeight,
-      $Graphics$Element.midLeft,
-      A2($Graphics$Element.flow,
-      $Graphics$Element.right,
-      _U.list([A3($Html.toElement,
-              lToolbarMarginLeft,
-              1,
-              A2(spacer,lToolbarMarginLeft,1))
-              ,A3($Html.toElement,30,30,menuOption)
-              ,A3($Html.toElement,
-              lTitleMarginLeft,
-              1,
-              A2(spacer,lTitleMarginLeft,1))
-              ,A3($Html.toElement,600,50,titleFromString(title))]))));
+      return A2($Html.div,
+      _U.list([$Html$Attributes.style(A2($Basics._op["++"],
+      _U.list([{ctor: "_Tuple2"
+               ,_0: "backgroundColor"
+               ,_1: "lightgreen"}]),
+      A2($Basics._op["++"],
+      _U.list([{ctor: "_Tuple2",_0: "height",_1: "100px"}]),
+      A2($Basics._op["++"],
+      A2($Flex.flow,$Flex.Horizontal,$Flex.NoWrap),
+      $Flex.display))))]),
+      _U.list([A2(spacer,lToolbarMarginLeft,1)
+              ,menuOption
+              ,A2(spacer,lTitleMarginLeft,1)
+              ,titleFromString(title)]));
    });
    return _elm.Material.Toolbar.values = {_op: _op
                                          ,OpenNavDrawer: OpenNavDrawer
@@ -13536,28 +13823,57 @@ Elm.Material.Foo.make = function (_elm) {
    if (_elm.Material.Foo.values) return _elm.Material.Foo.values;
    var _U = Elm.Native.Utils.make(_elm),
    $Basics = Elm.Basics.make(_elm),
-   $Color = Elm.Color.make(_elm),
    $Debug = Elm.Debug.make(_elm),
    $Graphics$Element = Elm.Graphics.Element.make(_elm),
+   $Html = Elm.Html.make(_elm),
+   $Html$Attributes = Elm.Html.Attributes.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm);
    var _op = {};
+   var divHeight = function (h) {
+      return $Html$Attributes.style(_U.list([{ctor: "_Tuple2"
+                                             ,_0: "height"
+                                             ,_1: A2($Basics._op["++"],$Basics.toString(h),"px")}]));
+   };
+   var divWidth = function (w) {
+      return $Html$Attributes.style(_U.list([{ctor: "_Tuple2"
+                                             ,_0: "width"
+                                             ,_1: A2($Basics._op["++"],$Basics.toString(w),"px")}]));
+   };
+   var divHeightPair = function (h) {
+      return {ctor: "_Tuple2"
+             ,_0: "height"
+             ,_1: A2($Basics._op["++"],$Basics.toString(h),"px")};
+   };
+   var divWidthPair = function (w) {
+      return {ctor: "_Tuple2"
+             ,_0: "width"
+             ,_1: A2($Basics._op["++"],$Basics.toString(w),"px")};
+   };
    var scrim = function (_p0) {
       var _p1 = _p0;
-      return A2($Graphics$Element.opacity,
-      0.5,
-      A2($Graphics$Element.color,
-      $Color.black,
-      A2($Graphics$Element.spacer,_p1._0,_p1._1)));
+      return A2($Html.div,
+      _U.list([$Html$Attributes.id("scrim")
+              ,divHeight(_p1._1)
+              ,divWidth(_p1._0)
+              ,$Html$Attributes.style(_U.list([{ctor: "_Tuple2"
+                                               ,_0: "background-color"
+                                               ,_1: "black"}
+                                              ,{ctor: "_Tuple2",_0: "opacity",_1: "0.5"}]))]),
+      _U.list([]));
    };
    var Page = F2(function (a,b) {
       return {content: a,title: b};
    });
    return _elm.Material.Foo.values = {_op: _op
                                      ,Page: Page
-                                     ,scrim: scrim};
+                                     ,scrim: scrim
+                                     ,divWidthPair: divWidthPair
+                                     ,divHeightPair: divHeightPair
+                                     ,divWidth: divWidth
+                                     ,divHeight: divHeight};
 };Elm.Material = Elm.Material || {};
 Elm.Material.NavDrawer = Elm.Material.NavDrawer || {};
 Elm.Material.NavDrawer.make = function (_elm) {
@@ -13569,25 +13885,24 @@ Elm.Material.NavDrawer.make = function (_elm) {
    var _U = Elm.Native.Utils.make(_elm),
    $Animation = Elm.Animation.make(_elm),
    $Basics = Elm.Basics.make(_elm),
-   $Color = Elm.Color.make(_elm),
    $Debug = Elm.Debug.make(_elm),
-   $Graphics$Element = Elm.Graphics.Element.make(_elm),
-   $Graphics$Input = Elm.Graphics.Input.make(_elm),
+   $Html = Elm.Html.make(_elm),
+   $Html$Attributes = Elm.Html.Attributes.make(_elm),
+   $Html$Events = Elm.Html.Events.make(_elm),
    $List = Elm.List.make(_elm),
    $Material$Foo = Elm.Material.Foo.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm),
-   $Text = Elm.Text.make(_elm),
    $Time = Elm.Time.make(_elm);
    var _op = {};
    var drawerOptionHeight = 100;
-   var drawerWidth = 340;
+   var navDrawerWidth = 340;
    var drawerOpenAnimation = function (t) {
       return A2($Animation.duration,
       400,
       A2($Animation.to,
-      drawerWidth,
+      navDrawerWidth,
       A2($Animation.from,0,$Animation.animation(t))));
    };
    var drawerCloseAnimation = function (t) {
@@ -13595,12 +13910,13 @@ Elm.Material.NavDrawer.make = function (_elm) {
       400,
       A2($Animation.to,
       0,
-      A2($Animation.from,drawerWidth,$Animation.animation(t))));
+      A2($Animation.from,navDrawerWidth,$Animation.animation(t))));
    };
    var step = F2(function (action,model) {
       var _p0 = action;
       switch (_p0.ctor)
-      {case "SelectPage": return _U.update(model,{page: _p0._0});
+      {case "SelectPage": return _U.update(model,
+           {page: _p0._0,drawerWidth: drawerCloseAnimation(model.clock)});
          case "Tick": return _U.update(model,
            {clock: model.clock + _p0._0});
          case "Open": return _U.update(model,
@@ -13659,59 +13975,57 @@ Elm.Material.NavDrawer.make = function (_elm) {
       return {ctor: "SelectPage",_0: a};
    };
    var drawerOption = F2(function (address,page) {
-      return A2($Graphics$Input.clickable,
-      A2($Signal.message,address,SelectPage(page)),
-      A4($Graphics$Element.container,
-      drawerWidth,
-      drawerOptionHeight,
-      $Graphics$Element.middle,
-      $Graphics$Element.centered($Text.fromString(page.title))));
+      return A2($Html.div,
+      _U.list([$Html$Attributes.id("drawerOption")
+              ,A2($Html$Events.onClick,address,SelectPage(page))
+              ,$Html$Attributes.style(_U.list([{ctor: "_Tuple2"
+                                               ,_0: "cursor"
+                                               ,_1: "pointer"}
+                                              ,$Material$Foo.divWidthPair(navDrawerWidth)
+                                              ,$Material$Foo.divHeightPair(drawerOptionHeight)]))]),
+      _U.list([A2($Html.h3,
+      _U.list([]),
+      _U.list([$Html.text(page.title)]))]));
    });
    var drawerOptions = F2(function (address,pages) {
-      return A2($Graphics$Element.flow,
-      $Graphics$Element.down,
-      A2($List.map,drawerOption(address),pages));
+      return A2($List.map,drawerOption(address),pages);
    });
    var view = function (model) {
-      var width = A2($Animation.animate,
+      var pageScrim = A2($Html.div,
+      _U.list([$Html$Attributes.id("scrim")
+              ,$Material$Foo.divHeight(model.screenHeight)
+              ,$Material$Foo.divWidth(model.screenWidth)
+              ,A2($Html$Events.onClick,model.mailbox.address,CloseNow)
+              ,$Html$Attributes.style(_U.list([{ctor: "_Tuple2"
+                                               ,_0: "background-color"
+                                               ,_1: "black"}
+                                              ,{ctor: "_Tuple2",_0: "opacity",_1: "0.5"}
+                                              ,{ctor: "_Tuple2",_0: "position",_1: "absolute"}
+                                              ,{ctor: "_Tuple2",_0: "z-index",_1: "99"}
+                                              ,$Material$Foo.divWidthPair(model.screenWidth)
+                                              ,$Material$Foo.divHeightPair(model.screenHeight)]))]),
+      _U.list([]));
+      var drawerOffset = $Basics.round(A2($Animation.animate,
       model.clock,
-      model.drawerWidth);
-      var pageScrim = A2($Graphics$Input.clickable,
-      A2($Signal.message,model.mailbox.address,CloseNow),
-      $Material$Foo.scrim({ctor: "_Tuple2"
-                          ,_0: model.screenWidth - $Basics.round(width)
-                          ,_1: model.screenHeight}));
-      var drawer = A4($Graphics$Element.container,
-      $Basics.round(width),
-      model.screenHeight,
-      $Graphics$Element.middle,
-      A2($Graphics$Element.color,
-      $Color.white,
-      A2(drawerOptions,model.mailbox.address,model.pages)));
-      return _U.cmp(width,0) > 0 ? A2($Graphics$Element.flow,
-      $Graphics$Element.right,
-      _U.list([drawer,pageScrim])) : $Graphics$Element.empty;
+      model.drawerWidth)) - navDrawerWidth;
+      var drawer = A2($Html.div,
+      _U.list([$Html$Attributes.id("drawer")
+              ,$Html$Attributes.style(_U.list([$Material$Foo.divWidthPair(navDrawerWidth)
+                                              ,$Material$Foo.divHeightPair(model.screenHeight)
+                                              ,{ctor: "_Tuple2",_0: "position",_1: "absolute"}
+                                              ,{ctor: "_Tuple2",_0: "background-color",_1: "white"}
+                                              ,{ctor: "_Tuple2"
+                                               ,_0: "left"
+                                               ,_1: A2($Basics._op["++"],$Basics.toString(drawerOffset),"px")}
+                                              ,{ctor: "_Tuple2",_0: "z-index",_1: "100"}]))]),
+      A2(drawerOptions,model.mailbox.address,model.pages));
+      return _U.cmp(drawerOffset + navDrawerWidth,
+      0) > 0 ? A2($Html.div,
+      _U.list([]),
+      _U.list([drawer,pageScrim])) : A2($Html.div,
+      _U.list([]),
+      _U.list([]));
    };
-   var navigationDrawer = F5(function (start,
-   _p3,
-   pages,
-   mailbox,
-   clock) {
-      var _p4 = _p3;
-      var widthAnimation = A2($Animation.duration,
-      400,
-      A2($Animation.to,
-      drawerWidth,
-      A2($Animation.from,0,$Animation.animation(start))));
-      var width = A2($Animation.animate,clock,widthAnimation);
-      return A4($Graphics$Element.container,
-      $Basics.round(width),
-      _p4._1,
-      $Graphics$Element.middle,
-      A2($Graphics$Element.color,
-      $Color.white,
-      A2(drawerOptions,mailbox.address,pages)));
-   });
    var mailbox = function (page) {
       return $Signal.mailbox(SelectPage(page));
    };
@@ -13725,13 +14039,12 @@ Elm.Material.NavDrawer.make = function (_elm) {
                                            ,Model: Model
                                            ,initialize: initialize
                                            ,model0: model0
-                                           ,drawerWidth: drawerWidth
+                                           ,navDrawerWidth: navDrawerWidth
                                            ,drawerOptionHeight: drawerOptionHeight
+                                           ,step: step
                                            ,drawerOpenAnimation: drawerOpenAnimation
                                            ,drawerCloseAnimation: drawerCloseAnimation
-                                           ,step: step
                                            ,view: view
-                                           ,navigationDrawer: navigationDrawer
                                            ,drawerOptions: drawerOptions
                                            ,drawerOption: drawerOption
                                            ,mailbox: mailbox};
@@ -13744,6 +14057,7 @@ Elm.Material.make = function (_elm) {
    $Basics = Elm.Basics.make(_elm),
    $Debug = Elm.Debug.make(_elm),
    $Graphics$Element = Elm.Graphics.Element.make(_elm),
+   $Html = Elm.Html.make(_elm),
    $List = Elm.List.make(_elm),
    $Material$Foo = Elm.Material.Foo.make(_elm),
    $Material$NavDrawer = Elm.Material.NavDrawer.make(_elm),
@@ -13764,22 +14078,20 @@ Elm.Material.make = function (_elm) {
    });
    var body = F2(function (_p0,content) {
       var _p1 = _p0;
-      return A4($Graphics$Element.container,
+      return $Html.fromElement(A4($Graphics$Element.container,
       _p1._0,
       _p1._1,
       $Graphics$Element.middle,
-      content);
+      content));
    });
    var view = function (state) {
-      return $Graphics$Element.layers(_U.list([A2($Graphics$Element.flow,
-                                              $Graphics$Element.down,
-                                              _U.list([A2(toolbarView,state.screenWidth,state.nav.page.title)
-                                                      ,A2(body,
-                                                      {ctor: "_Tuple2",_0: state.screenWidth,_1: 180},
-                                                      state.nav.page.content)]))
-                                              ,A2($Graphics$Element.flow,
-                                              $Graphics$Element.right,
-                                              _U.list([$Material$NavDrawer.view(state.nav)]))]));
+      return A2($Html.div,
+      _U.list([]),
+      _U.list([$Material$NavDrawer.view(state.nav)
+              ,A2(toolbarView,state.screenWidth,state.nav.page.title)
+              ,A2(body,
+              {ctor: "_Tuple2",_0: state.screenWidth,_1: 180},
+              state.nav.page.content)]));
    };
    var update = F2(function (action,state) {
       var _p2 = action;
@@ -13893,6 +14205,7 @@ Elm.Main.make = function (_elm) {
    $Basics = Elm.Basics.make(_elm),
    $Debug = Elm.Debug.make(_elm),
    $Graphics$Element = Elm.Graphics.Element.make(_elm),
+   $Html = Elm.Html.make(_elm),
    $List = Elm.List.make(_elm),
    $Material = Elm.Material.make(_elm),
    $Material$Foo = Elm.Material.Foo.make(_elm),

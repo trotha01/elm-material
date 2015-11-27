@@ -1,14 +1,16 @@
 module Material.NavDrawer where
 
 import Color exposing (white)
-import Graphics.Element exposing (Element, flow, right, container, middle, centered, down, color, empty)
-import Graphics.Input exposing (clickable)
-import Material.Foo exposing (Page, Pages, scrim)
+import Material.Foo exposing (Page, Pages, scrim, divWidth, divHeight, divWidthPair, divHeightPair )
 import Text exposing (fromString)
 import Signal exposing (Mailbox)
 import Time exposing (Time)
 import Easing exposing (easeInBounce, easeInElastic)
 import Animation exposing (..)
+import Html exposing (Html)
+import Html.Attributes exposing (width, height, size, style, id)
+import Html.Events exposing (onClick)
+import Flex
 import Debug
 
 -- MODEL
@@ -21,6 +23,8 @@ type Action
     | CloseNow -- uses model.clock time to close
     | WindowResize (Int, Int)
 
+-- drawerWidth is actually used for the offset as the nav drawer moves on and off the screen
+-- It's easier to think of as a width
 type alias Model =
     { screenWidth: Int
     , screenHeight: Int
@@ -40,14 +44,8 @@ initialize w h page pages mailbox start clock =
 model0 : Page -> Pages -> (Int, Int) -> Mailbox Action -> Model
 model0 page pages (w, h) mailbox = initialize w h page pages mailbox 0 0
 
-drawerWidth = 340
+navDrawerWidth = 340
 drawerOptionHeight = 100
-
-drawerOpenAnimation : Time -> Animation
-drawerOpenAnimation t = (animation t |> from 0 |> to drawerWidth |> duration 400)
-
-drawerCloseAnimation : Time -> Animation
-drawerCloseAnimation t = (animation t |> from drawerWidth |> to 0 |> duration 400)
 
 -- UPDATE
 
@@ -55,7 +53,7 @@ step : Action -> Model -> Model
 step action model =
     case action of
         SelectPage page ->
-            {model | page = page}
+            {model | page = page, drawerWidth = drawerCloseAnimation model.clock }
         Tick t ->
             {model | clock = model.clock + t}
         Open t ->
@@ -67,46 +65,73 @@ step action model =
         WindowResize (w, h) ->
             {model | screenWidth = w, screenHeight = h }
 
+drawerOpenAnimation : Time -> Animation
+drawerOpenAnimation t = (animation t |> from 0 |> to navDrawerWidth |> duration 400)
+
+drawerCloseAnimation : Time -> Animation
+drawerCloseAnimation t = (animation t |> from navDrawerWidth |> to 0 |> duration 400)
 
 -- VIEW
 
-view : Model -> Element
+{-|
+  NavigationDrawer comes in from the left
+-}
+view : Model -> Html
 view model =
-  let width = (animate model.clock model.drawerWidth)
-      pageScrim = scrim (model.screenWidth - (round width), model.screenHeight)
-                       |> clickable (Signal.message model.mailbox.address (CloseNow))
-      drawer = container (round width) model.screenHeight middle 
-               (drawerOptions model.mailbox.address model.pages |> color white)
-   in if width > 0 then
-        flow right
+  let drawerOffset = (round (animate model.clock model.drawerWidth)) - navDrawerWidth
+      pageScrim = Html.div
+                  [ id "scrim"
+                  , divHeight model.screenHeight
+                  , divWidth model.screenWidth
+                  , onClick model.mailbox.address CloseNow
+                  , style
+                    [ ("background-color","black")
+                    , ("opacity", "0.5")
+                    , ("position", "absolute")
+                    , ("z-index", "99")
+                    , (divWidthPair model.screenWidth)
+                    , (divHeightPair model.screenHeight)
+                    ]
+                  ]
+                  []
+      drawer = Html.div
+                [ id "drawer"
+                , style
+                    [ (divWidthPair navDrawerWidth)
+                    , (divHeightPair model.screenHeight)
+                    , ("position", "absolute")
+                    , ("background-color", "white")
+                    , ("left", toString (drawerOffset) ++ "px")
+                    , ("z-index", "100")
+                    ]
+                ]
+               (drawerOptions model.mailbox.address model.pages)
+
+   in if drawerOffset + navDrawerWidth > 0 then
+        Html.div []
         [ drawer
         , pageScrim
         ]
       else
-        empty
-
-{-|
-  NavigationDrawer comes in from the left
-  width and height should be Window.Dimensions
--}
-navigationDrawer : Time -> (Int, Int) -> Pages -> Mailbox Action -> Time -> Element
-navigationDrawer start (w, h) pages mailbox clock =
-  let widthAnimation = (animation start |> from 0 |> to drawerWidth |> duration 400)
-      width = animate clock widthAnimation 
-   in container (round width) h middle 
-      (drawerOptions mailbox.address pages
-      |> color white)
+        Html.div [] []
 
 -- Nav Drawer View
-drawerOptions : Signal.Address Action -> Pages -> Element
+drawerOptions : Signal.Address Action -> Pages -> List Html
 drawerOptions address pages =
-  flow down
     (List.map (drawerOption address) pages)
 
-drawerOption : Signal.Address Action -> Page -> Element
+drawerOption : Signal.Address Action -> Page -> Html
 drawerOption address page =
-   container drawerWidth drawerOptionHeight middle (centered (fromString page.title))
-    |> clickable (Signal.message address (SelectPage page))
+    Html.div
+        [ id "drawerOption"
+        , onClick address (SelectPage page)
+        , style
+            [ ("cursor","pointer")
+            , (divWidthPair navDrawerWidth)
+            , (divHeightPair drawerOptionHeight)
+            ]
+        ]
+        [ Html.h3 [] [Html.text page.title] ]
 
 -- SIGNALS
 

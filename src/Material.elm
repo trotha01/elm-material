@@ -1,14 +1,14 @@
 module Material where
 
-import Graphics.Element exposing (Element, layers, middle, container, flow, down, right, centered, width, height)
+import Graphics.Element exposing (Element, middle, container, centered)
 import Graphics.Input exposing (clickable)
 import List
 import Signal exposing (Mailbox)
 import Text exposing (fromString)
 import Window
 import Debug
-import Html
 import Time exposing (Time)
+import Html exposing (Html)
 
 import Material.Toolbar as Toolbar exposing (mailbox)
 import Material.NavDrawer as NavDrawer exposing (mailbox)
@@ -66,29 +66,21 @@ update action state =
 
 -- VIEW
 
-view : State -> Element
+view : State -> Html
 view state =
-    -- layers
-    -- [
-      flow down
-      [
+    Html.div [] [
+        NavDrawer.view state.nav,
         toolbarView state.screenWidth state.nav.page.title,
         body (state.screenWidth, 180) state.nav.page.content
-      ]
-      -- flow right
-      -- [
-      --     NavDrawer.view state.nav
-      -- ]
-    -- ]
+    ]
 
-body : (Int, Int) -> Element -> Element
+body : (Int, Int) -> Element -> Html
 body (w, h) content =
-  container w h middle content
+  Html.fromElement (container w h middle content)
 
-toolbarView : Int -> String -> Element
+toolbarView : Int -> String -> Html
 toolbarView w title =
     Toolbar.view w title
-    -- Html.toElement w 128 (Toolbar.toolbar w title)
 
 -- TODO: errorPage : Int -> String -> Page
 -- errorPage : statusCode contents =
@@ -101,7 +93,7 @@ errorPage contents =
 
 -- SIGNALS
 
-app : Pages -> Signal Element
+app : Pages -> Signal Html
 app pages =
         let initialPage = case (List.head pages) of
                 Just page ->

@@ -6,6 +6,7 @@ import Graphics.Element exposing
 import Graphics.Input exposing (clickable)
 import Text exposing (fromString)
 import Maybe exposing (Maybe)
+import Html exposing (Html)
 import List
 
 import Material
@@ -35,6 +36,6 @@ patterns =
 pages : Pages
 pages = [ helloWorld, components, patterns ]
 
-main : Signal Element
+main : Signal Html
 main =
    Material.app pages

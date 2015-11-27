@@ -7,11 +7,13 @@
         ".",
         "src",
         "src/Material",
-        "examples"
+        "examples",
+        "../flex-html/src"
     ],
     "exposed-modules": [],
     "dependencies": {
         "Dandandan/Easing": "2.0.1 <= v < 3.0.0",
+        "coreytrampe/elm-vendor": "2.0.0 <= v < 3.0.0",
         "elm-community/elm-material-icons": "1.0.0 <= v < 2.0.0",
         "elm-lang/core": "3.0.0 <= v < 4.0.0",
         "evancz/elm-html": "4.0.2 <= v < 5.0.0",

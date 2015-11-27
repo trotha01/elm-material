@@ -1,7 +1,5 @@
 module Material.Toolbar where
 
-import Graphics.Element exposing (Element, image, color, container, midLeft, flow, right, leftAligned)
-import Graphics.Input exposing (clickable)
 import Text exposing (Style, defaultStyle)
 import Color exposing (green)
 import Svg exposing (Svg)
@@ -10,7 +8,7 @@ import Html exposing (Html)
 import Html.Events exposing (onClick)
 import Html.Attributes exposing (width, height, size, style)
 import Material.Icons.Navigation exposing (menu)
--- import Flex
+import Flex -- exposing (Horizontal, NoWrap)
 
 -- MODEL
 -- There is only one button right now,
@@ -31,7 +29,7 @@ hamburger = menu Color.white 30
 menuOption : Html
 menuOption = Html.div
     [ onClick mailbox.address OpenNavDrawer
-    , style [("cursor","pointer")]
+    , style [("cursor","pointer"), ("padding","16px")]
     ]
     [ hamburger ]
 
@@ -60,16 +58,16 @@ titleSize = "50px"
 
 titleFromString : String -> Html
 titleFromString string = 
-  Html.div [ style [( "font-size", titleSize )] ] [Html.text string]
+  Html.div [ style [( "font-size", titleSize), ("padding", "16px" )] ] [Html.text string]
 
 spacer : Int -> Int -> Html
 spacer w h =
-  Html.div [ width w, height h ] []
+  Html.div ([ width w, height h ] ++ [style (Flex.shrink 1)]) []
 
 {-|
   toolbar takes in the width of the screen and a title string
 --}
-{--}
+{-
 view : Int -> String -> Element
 view width title =
   container width lToolbarHeight midLeft
@@ -84,17 +82,20 @@ view width title =
   |> color green
   --}
 
-{--
-toolbar : Int -> String -> Html
-toolbar width title =
-  Html.div [ style [ ("backgroundColor", "green" )] ]
-  [
-      (spacer lToolbarMarginLeft 1),
-      menuOption,
-      (spacer lTitleMarginLeft 1),
-      (titleFromString title)
+{--}
+view: Int -> String -> Html
+view width title =
+  Html.div
+  [ style ([("backgroundColor", "lightgreen" )]
+        ++ [("height", "100px")]
+        ++ Flex.flow Flex.Horizontal Flex.NoWrap
+        ++ Flex.display )
   ]
---}
+  [ (spacer lToolbarMarginLeft 1)
+  , menuOption
+  , (spacer lTitleMarginLeft 1)
+  , (titleFromString title)
+  ]
 
 hflow : List Html -> List Html
 hflow nodes =
@@ -106,20 +107,6 @@ floatify node =
     node
   ]
 
-{--
-toolbar : Int -> String -> Html
-toolbar width title =
-  Html.div [ style [ ("backgroundColor", "green" )] ]
-  [
-    Flex.row
-    [
-      (spacer lToolbarMarginLeft 1),
-      menuOption,
-      (spacer lTitleMarginLeft 1),
-      (titleFromString title)
-    ]
-  ]
---}
 
 -- SIGNALS
 
