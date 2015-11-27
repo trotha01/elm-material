@@ -13,6 +13,8 @@ import Material.Icons.Navigation exposing (menu)
 -- import Flex
 
 -- MODEL
+-- There is only one button right now,
+-- so the only action so far is opening the nav drawer
 type Action
     = OpenNavDrawer
 
@@ -28,7 +30,7 @@ hamburger = menu Color.white 30
 
 menuOption : Html
 menuOption = Html.div
-    [ onClick toolbarMailbox.address OpenNavDrawer
+    [ onClick mailbox.address OpenNavDrawer
     , style [("cursor","pointer")]
     ]
     [ hamburger ]
@@ -68,8 +70,8 @@ spacer w h =
   toolbar takes in the width of the screen and a title string
 --}
 {--}
-toolbar : Int -> String -> Element
-toolbar width title =
+view : Int -> String -> Element
+view width title =
   container width lToolbarHeight midLeft
   (flow right
     [
@@ -121,7 +123,7 @@ toolbar width title =
 
 -- SIGNALS
 
-toolbarMailbox : Signal.Mailbox Action
-toolbarMailbox =
+mailbox : Signal.Mailbox Action
+mailbox =
   Signal.mailbox (OpenNavDrawer)
 

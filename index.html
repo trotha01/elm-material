@@ -13482,16 +13482,14 @@ Elm.Material.Toolbar.make = function (_elm) {
    var toolbarIconSize = 24;
    var lTitleMarginLeft = 72 - lToolbarMarginLeft - toolbarIconSize;
    var OpenNavDrawer = {ctor: "OpenNavDrawer"};
-   var toolbarMailbox = $Signal.mailbox(OpenNavDrawer);
+   var mailbox = $Signal.mailbox(OpenNavDrawer);
    var menuOption = A2($Html.div,
-   _U.list([A2($Html$Events.onClick,
-           toolbarMailbox.address,
-           OpenNavDrawer)
+   _U.list([A2($Html$Events.onClick,mailbox.address,OpenNavDrawer)
            ,$Html$Attributes.style(_U.list([{ctor: "_Tuple2"
                                             ,_0: "cursor"
                                             ,_1: "pointer"}]))]),
    _U.list([hamburger]));
-   var toolbar = F2(function (width,title) {
+   var view = F2(function (width,title) {
       return A2($Graphics$Element.color,
       $Color.green,
       A4($Graphics$Element.container,
@@ -13525,10 +13523,10 @@ Elm.Material.Toolbar.make = function (_elm) {
                                          ,titleSize: titleSize
                                          ,titleFromString: titleFromString
                                          ,spacer: spacer
-                                         ,toolbar: toolbar
+                                         ,view: view
                                          ,hflow: hflow
                                          ,floatify: floatify
-                                         ,toolbarMailbox: toolbarMailbox};
+                                         ,mailbox: mailbox};
 };Elm.Material = Elm.Material || {};
 Elm.Material.Foo = Elm.Material.Foo || {};
 Elm.Material.Foo.make = function (_elm) {
@@ -13585,6 +13583,78 @@ Elm.Material.NavDrawer.make = function (_elm) {
    var _op = {};
    var drawerOptionHeight = 100;
    var drawerWidth = 340;
+   var drawerOpenAnimation = function (t) {
+      return A2($Animation.duration,
+      400,
+      A2($Animation.to,
+      drawerWidth,
+      A2($Animation.from,0,$Animation.animation(t))));
+   };
+   var drawerCloseAnimation = function (t) {
+      return A2($Animation.duration,
+      400,
+      A2($Animation.to,
+      0,
+      A2($Animation.from,drawerWidth,$Animation.animation(t))));
+   };
+   var step = F2(function (action,model) {
+      var _p0 = action;
+      switch (_p0.ctor)
+      {case "SelectPage": return _U.update(model,{page: _p0._0});
+         case "Tick": return _U.update(model,
+           {clock: model.clock + _p0._0});
+         case "Open": return _U.update(model,
+           {drawerWidth: drawerOpenAnimation(_p0._0)});
+         case "Close": return _U.update(model,
+           {drawerWidth: drawerCloseAnimation(_p0._0)});
+         case "CloseNow": return _U.update(model,
+           {drawerWidth: drawerCloseAnimation(model.clock)});
+         default: return _U.update(model,
+           {screenWidth: _p0._0._0,screenHeight: _p0._0._1});}
+   });
+   var Model = F8(function (a,b,c,d,e,f,g,h) {
+      return {screenWidth: a
+             ,screenHeight: b
+             ,drawerWidth: c
+             ,page: d
+             ,pages: e
+             ,mailbox: f
+             ,start: g
+             ,clock: h};
+   });
+   var initialize = F7(function (w,
+   h,
+   page,
+   pages,
+   mailbox,
+   start,
+   clock) {
+      var widthAnimation = A2($Animation.duration,
+      400,
+      A2($Animation.to,
+      0,
+      A2($Animation.from,0,$Animation.animation(start))));
+      return A8(Model,
+      w,
+      h,
+      widthAnimation,
+      page,
+      pages,
+      mailbox,
+      start,
+      clock);
+   });
+   var model0 = F4(function (page,pages,_p1,mailbox) {
+      var _p2 = _p1;
+      return A7(initialize,_p2._0,_p2._1,page,pages,mailbox,0,0);
+   });
+   var WindowResize = function (a) {
+      return {ctor: "WindowResize",_0: a};
+   };
+   var CloseNow = {ctor: "CloseNow"};
+   var Close = function (a) {    return {ctor: "Close",_0: a};};
+   var Open = function (a) {    return {ctor: "Open",_0: a};};
+   var Tick = function (a) {    return {ctor: "Tick",_0: a};};
    var SelectPage = function (a) {
       return {ctor: "SelectPage",_0: a};
    };
@@ -13602,12 +13672,32 @@ Elm.Material.NavDrawer.make = function (_elm) {
       $Graphics$Element.down,
       A2($List.map,drawerOption(address),pages));
    });
+   var view = function (model) {
+      var width = A2($Animation.animate,
+      model.clock,
+      model.drawerWidth);
+      var pageScrim = A2($Graphics$Input.clickable,
+      A2($Signal.message,model.mailbox.address,CloseNow),
+      $Material$Foo.scrim({ctor: "_Tuple2"
+                          ,_0: model.screenWidth - $Basics.round(width)
+                          ,_1: model.screenHeight}));
+      var drawer = A4($Graphics$Element.container,
+      $Basics.round(width),
+      model.screenHeight,
+      $Graphics$Element.middle,
+      A2($Graphics$Element.color,
+      $Color.white,
+      A2(drawerOptions,model.mailbox.address,model.pages)));
+      return _U.cmp(width,0) > 0 ? A2($Graphics$Element.flow,
+      $Graphics$Element.right,
+      _U.list([drawer,pageScrim])) : $Graphics$Element.empty;
+   };
    var navigationDrawer = F5(function (start,
-   _p0,
+   _p3,
    pages,
    mailbox,
    clock) {
-      var _p1 = _p0;
+      var _p4 = _p3;
       var widthAnimation = A2($Animation.duration,
       400,
       A2($Animation.to,
@@ -13616,68 +13706,32 @@ Elm.Material.NavDrawer.make = function (_elm) {
       var width = A2($Animation.animate,clock,widthAnimation);
       return A4($Graphics$Element.container,
       $Basics.round(width),
-      _p1._1,
+      _p4._1,
       $Graphics$Element.middle,
       A2($Graphics$Element.color,
       $Color.white,
       A2(drawerOptions,mailbox.address,pages)));
-   });
-   var openNavigationDrawer = F5(function (start,
-   _p2,
-   pages,
-   mailbox,
-   clock) {
-      var _p3 = _p2;
-      var widthAnimation = A2($Animation.duration,
-      400,
-      A2($Animation.to,
-      drawerWidth,
-      A2($Animation.from,0,$Animation.animation(start))));
-      var width = A2($Animation.animate,clock,widthAnimation);
-      var opened = _U.eq(width,drawerWidth);
-      return {ctor: "_Tuple2"
-             ,_0: opened
-             ,_1: A4($Graphics$Element.container,
-             $Basics.round(width),
-             _p3._1,
-             $Graphics$Element.middle,
-             A2($Graphics$Element.color,
-             $Color.white,
-             A2(drawerOptions,mailbox.address,pages)))};
-   });
-   var closeNavigationDrawer = F5(function (start,
-   _p4,
-   pages,
-   mailbox,
-   clock) {
-      var _p5 = _p4;
-      var widthAnimation = A2($Animation.duration,
-      400,
-      A2($Animation.to,
-      0,
-      A2($Animation.from,drawerWidth,$Animation.animation(start))));
-      var width = A2($Animation.animate,clock,widthAnimation);
-      var closed = _U.eq(width,0);
-      return {ctor: "_Tuple2"
-             ,_0: closed
-             ,_1: A4($Graphics$Element.container,
-             $Basics.round(width),
-             _p5._1,
-             $Graphics$Element.middle,
-             A2($Graphics$Element.color,
-             $Color.white,
-             A2(drawerOptions,mailbox.address,pages)))};
    });
    var mailbox = function (page) {
       return $Signal.mailbox(SelectPage(page));
    };
    return _elm.Material.NavDrawer.values = {_op: _op
                                            ,SelectPage: SelectPage
+                                           ,Tick: Tick
+                                           ,Open: Open
+                                           ,Close: Close
+                                           ,CloseNow: CloseNow
+                                           ,WindowResize: WindowResize
+                                           ,Model: Model
+                                           ,initialize: initialize
+                                           ,model0: model0
                                            ,drawerWidth: drawerWidth
                                            ,drawerOptionHeight: drawerOptionHeight
+                                           ,drawerOpenAnimation: drawerOpenAnimation
+                                           ,drawerCloseAnimation: drawerCloseAnimation
+                                           ,step: step
+                                           ,view: view
                                            ,navigationDrawer: navigationDrawer
-                                           ,openNavigationDrawer: openNavigationDrawer
-                                           ,closeNavigationDrawer: closeNavigationDrawer
                                            ,drawerOptions: drawerOptions
                                            ,drawerOption: drawerOption
                                            ,mailbox: mailbox};
@@ -13690,7 +13744,6 @@ Elm.Material.make = function (_elm) {
    $Basics = Elm.Basics.make(_elm),
    $Debug = Elm.Debug.make(_elm),
    $Graphics$Element = Elm.Graphics.Element.make(_elm),
-   $Graphics$Input = Elm.Graphics.Input.make(_elm),
    $List = Elm.List.make(_elm),
    $Material$Foo = Elm.Material.Foo.make(_elm),
    $Material$NavDrawer = Elm.Material.NavDrawer.make(_elm),
@@ -13707,7 +13760,7 @@ Elm.Material.make = function (_elm) {
              ,content: $Graphics$Element.centered($Text.fromString(contents))};
    };
    var toolbarView = F2(function (w,title) {
-      return A2($Material$Toolbar.toolbar,w,title);
+      return A2($Material$Toolbar.view,w,title);
    });
    var body = F2(function (_p0,content) {
       var _p1 = _p0;
@@ -13717,16 +13770,50 @@ Elm.Material.make = function (_elm) {
       $Graphics$Element.middle,
       content);
    });
-   var pageView = F2(function (_p2,page) {
-      var _p3 = _p2;
-      var _p4 = _p3._0;
-      return A2($Graphics$Element.flow,
-      $Graphics$Element.down,
-      _U.list([A2(toolbarView,_p4,page.title)
-              ,A2(body,{ctor: "_Tuple2",_0: _p4,_1: 180},page.content)]));
+   var view = function (state) {
+      return $Graphics$Element.layers(_U.list([A2($Graphics$Element.flow,
+                                              $Graphics$Element.down,
+                                              _U.list([A2(toolbarView,state.screenWidth,state.nav.page.title)
+                                                      ,A2(body,
+                                                      {ctor: "_Tuple2",_0: state.screenWidth,_1: 180},
+                                                      state.nav.page.content)]))
+                                              ,A2($Graphics$Element.flow,
+                                              $Graphics$Element.right,
+                                              _U.list([$Material$NavDrawer.view(state.nav)]))]));
+   };
+   var update = F2(function (action,state) {
+      var _p2 = action;
+      switch (_p2.ctor)
+      {case "ToolbarAction": return _U.update(state,
+           {nav: A2($Material$NavDrawer.step,
+           $Material$NavDrawer.Open(state.clock),
+           state.nav)});
+         case "NavAction": return _U.update(state,
+           {nav: A2($Material$NavDrawer.step,_p2._0,state.nav)});
+         case "Tick": var _p3 = _p2._0;
+           return _U.update(state,
+           {clock: state.clock + _p3
+           ,nav: A2($Material$NavDrawer.step,
+           $Material$NavDrawer.Tick(_p3),
+           state.nav)});
+         case "WindowResize": var _p5 = _p2._0._0;
+           var _p4 = _p2._0._1;
+           return _U.update(state,
+           {screenWidth: _p5
+           ,screenHeight: _p4
+           ,nav: A2($Material$NavDrawer.step,
+           $Material$NavDrawer.WindowResize({ctor: "_Tuple2"
+                                            ,_0: _p5
+                                            ,_1: _p4}),
+           state.nav)});
+         default: return state;}
    });
-   var State = F3(function (a,b,c) {
-      return {view: a,page: b,clock: c};
+   var State = F5(function (a,b,c,d,e) {
+      return {view: a
+             ,clock: b
+             ,nav: c
+             ,screenWidth: d
+             ,screenHeight: e};
    });
    var CloseNav = function (a) {
       return {ctor: "CloseNav",_0: a};
@@ -13735,81 +13822,12 @@ Elm.Material.make = function (_elm) {
       return {ctor: "OpenNav",_0: a};
    };
    var MainView = {ctor: "MainView"};
-   var update = F2(function (action,state) {
-      var _p5 = action;
-      switch (_p5.ctor)
-      {case "ToolbarAction": return _U.update(state,
-           {view: OpenNav(state.clock)});
-         case "NavAction": return _U.update(state,
-           {view: MainView,page: _p5._0._0});
-         case "CloseNavDrawer": return _U.update(state,
-           {view: CloseNav(state.clock)});
-         default: return _U.update(state,{clock: state.clock + _p5._0});}
-   });
+   var NoAction = {ctor: "NoAction"};
+   var appMailbox = $Signal.mailbox(NoAction);
+   var WindowResize = function (a) {
+      return {ctor: "WindowResize",_0: a};
+   };
    var Tick = function (a) {    return {ctor: "Tick",_0: a};};
-   var CloseNavDrawer = {ctor: "CloseNavDrawer"};
-   var appMailbox = $Signal.mailbox(CloseNavDrawer);
-   var navView = F7(function (open,
-   start,
-   now,
-   _p6,
-   pages,
-   currentPage,
-   navMailbox) {
-      var _p7 = _p6;
-      var _p10 = _p7._0;
-      var _p9 = _p7._1;
-      var _p8 = open ? A5($Material$NavDrawer.openNavigationDrawer,
-      start,
-      {ctor: "_Tuple2",_0: _p10,_1: _p9},
-      pages,
-      navMailbox,
-      now) : A5($Material$NavDrawer.closeNavigationDrawer,
-      start,
-      {ctor: "_Tuple2",_0: _p10,_1: _p9},
-      pages,
-      navMailbox,
-      now);
-      var navDrawer = _p8._1;
-      return $Graphics$Element.layers(_U.list([A2($Graphics$Element.flow,
-                                              $Graphics$Element.down,
-                                              _U.list([A2(toolbarView,_p10,currentPage.title)
-                                                      ,A2(body,
-                                                      {ctor: "_Tuple2",_0: _p10,_1: 180},
-                                                      currentPage.content)]))
-                                              ,A2($Graphics$Element.flow,
-                                              $Graphics$Element.right,
-                                              _U.list([navDrawer
-                                                      ,A2($Graphics$Input.clickable,
-                                                      A2($Signal.message,appMailbox.address,CloseNavDrawer),
-                                                      $Material$Foo.scrim({ctor: "_Tuple2",_0: _p10,_1: _p9}))]))]));
-   });
-   var view = F4(function (pages,navMailbox,_p11,state) {
-      var _p12 = _p11;
-      var _p15 = _p12._0;
-      var _p14 = _p12._1;
-      var _p13 = state.view;
-      switch (_p13.ctor)
-      {case "MainView": return A2(pageView,
-           {ctor: "_Tuple2",_0: _p15,_1: _p14},
-           state.page);
-         case "OpenNav": return A7(navView,
-           true,
-           _p13._0,
-           state.clock,
-           {ctor: "_Tuple2",_0: _p15,_1: _p14},
-           pages,
-           state.page,
-           navMailbox);
-         default: return A7(navView,
-           false,
-           _p13._0,
-           state.clock,
-           {ctor: "_Tuple2",_0: _p15,_1: _p14},
-           pages,
-           state.page,
-           navMailbox);}
-   });
    var NavAction = function (a) {
       return {ctor: "NavAction",_0: a};
    };
@@ -13817,41 +13835,50 @@ Elm.Material.make = function (_elm) {
       return {ctor: "ToolbarAction",_0: a};
    };
    var app = function (pages) {
+      var toolMailbox = $Material$Toolbar.mailbox;
       var initialPage = function () {
-         var _p16 = $List.head(pages);
-         if (_p16.ctor === "Just") {
-               return _p16._0;
+         var _p6 = $List.head(pages);
+         if (_p6.ctor === "Just") {
+               return _p6._0;
             } else {
                return errorPage("No pages found!");
             }
       }();
       var navMailbox = $Material$NavDrawer.mailbox(initialPage);
-      return A3($Signal.map2,
-      A2(view,pages,navMailbox),
-      $Window.dimensions,
+      var model0 = {view: MainView
+                   ,clock: 0
+                   ,nav: A4($Material$NavDrawer.model0,
+                   initialPage,
+                   pages,
+                   {ctor: "_Tuple2",_0: 1276,_1: 365},
+                   navMailbox)
+                   ,screenWidth: 1276
+                   ,screenHeight: 365};
+      return A2($Signal.map,
+      view,
       A3($Signal.foldp,
       update,
-      {view: MainView,page: initialPage,clock: 0},
+      model0,
       $Signal.mergeMany(_U.list([A2($Signal.map,
                                 ToolbarAction,
-                                $Material$Toolbar.toolbarMailbox.signal)
+                                toolMailbox.signal)
                                 ,A2($Signal.map,NavAction,navMailbox.signal)
                                 ,A2($Signal.map,Tick,$Time.fps(60))
+                                ,A2($Signal.map,WindowResize,$Window.dimensions)
                                 ,appMailbox.signal]))));
    };
    return _elm.Material.values = {_op: _op
                                  ,ToolbarAction: ToolbarAction
                                  ,NavAction: NavAction
-                                 ,CloseNavDrawer: CloseNavDrawer
                                  ,Tick: Tick
+                                 ,WindowResize: WindowResize
+                                 ,NoAction: NoAction
                                  ,MainView: MainView
                                  ,OpenNav: OpenNav
                                  ,CloseNav: CloseNav
                                  ,State: State
                                  ,update: update
                                  ,view: view
-                                 ,pageView: pageView
-                                 ,navView: navView
                                  ,body: body
                                  ,toolbarView: toolbarView
                                  ,errorPage: errorPage

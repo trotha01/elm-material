@@ -10,7 +10,7 @@ import Debug
 import Html
 import Time exposing (Time)
 
-import Material.Toolbar as Toolbar exposing (toolbarMailbox)
+import Material.Toolbar as Toolbar exposing (mailbox)
 import Material.NavDrawer as NavDrawer exposing (mailbox)
 import Material.Foo exposing (Page, Pages, scrim)
 
@@ -26,8 +26,9 @@ import Material.Foo exposing (Page, Pages, scrim)
 type Action
     = ToolbarAction Toolbar.Action
     | NavAction NavDrawer.Action
-    | CloseNavDrawer
     | Tick Time
+    | WindowResize (Int,Int)
+    | NoAction -- TODO: is this needed?
 
 type View
     = MainView
@@ -35,63 +36,50 @@ type View
     | CloseNav Time -- gives the start time, for when the navbar is opened/closed
 
 type alias State = 
-    { view:View, page: Page, clock : Time }
+    { view: View
+    , clock: Time
+    , nav: NavDrawer.Model
+    , screenWidth: Int
+    , screenHeight: Int
+    }
 
 -- UPDATE
 
 update : Action -> State -> State
 update action state =
   case action of
-    ToolbarAction action ->
-      {state|view=OpenNav state.clock}
-    NavAction (NavDrawer.SelectPage newPage) ->
-      {state|view=MainView, page = newPage}
-    CloseNavDrawer ->
-      {state|view=CloseNav state.clock}
+    ToolbarAction (Toolbar.OpenNavDrawer) ->
+      { state | nav = (NavDrawer.step (NavDrawer.Open state.clock) state.nav) }
+    NavAction a ->
+      { state | nav = (NavDrawer.step a state.nav)}
     Tick t ->
-      {state | clock = state.clock + t}
+      { state | clock = state.clock + t
+              , nav = (NavDrawer.step (NavDrawer.Tick t) state.nav)
+      }
+    WindowResize (w, h) ->
+      { state | screenWidth =  w,
+                screenHeight = h,
+                nav = (NavDrawer.step (NavDrawer.WindowResize (w,h)) state.nav)
+      }
+    NoAction ->
+        state
 
 -- VIEW
 
-view : Pages -> Mailbox NavDrawer.Action -> (Int, Int) -> State -> Element
-view pages navMailbox (w, h) state =
-    case state.view of
-        MainView ->
-          pageView (w, h) state.page
-        OpenNav start ->
-          navView True start state.clock (w, h) pages state.page navMailbox
-        CloseNav start ->
-          navView False start state.clock (w, h) pages state.page navMailbox
-
-pageView : (Int, Int) -> Page -> Element
-pageView (w, h) page = flow down
-  [
-    toolbarView w page.title,
-    body (w, 180) page.content
-  ]
-
-navView : Bool -> Time -> Time -> (Int, Int) -> Pages -> Page -> Mailbox NavDrawer.Action -> Element
-navView open start now (w, h) pages currentPage navMailbox =
-  let (_, navDrawer) = 
-        if open then
-            NavDrawer.openNavigationDrawer start (w, h) pages navMailbox now
-        else
-            NavDrawer.closeNavigationDrawer start (w, h) pages navMailbox now
-   in layers
-    [
+view : State -> Element
+view state =
+    -- layers
+    -- [
       flow down
       [
-        toolbarView w currentPage.title,
-        body (w, 180) currentPage.content
-      ],
-
-      flow right
-      [
-          navDrawer,
-          scrim (w, h)
-              |> clickable (Signal.message appMailbox.address (CloseNavDrawer))
+        toolbarView state.screenWidth state.nav.page.title,
+        body (state.screenWidth, 180) state.nav.page.content
       ]
-    ]
+      -- flow right
+      -- [
+      --     NavDrawer.view state.nav
+      -- ]
+    -- ]
 
 body : (Int, Int) -> Element -> Element
 body (w, h) content =
@@ -99,9 +87,11 @@ body (w, h) content =
 
 toolbarView : Int -> String -> Element
 toolbarView w title =
-    Toolbar.toolbar w title
+    Toolbar.view w title
     -- Html.toElement w 128 (Toolbar.toolbar w title)
 
+-- TODO: errorPage : Int -> String -> Page
+-- errorPage : statusCode contents =
 errorPage : String -> Page
 errorPage contents =
   {
@@ -119,17 +109,26 @@ app pages =
                 Nothing ->
                   errorPage "No pages found!"
             navMailbox = NavDrawer.mailbox initialPage
+            toolMailbox = Toolbar.mailbox
+            model0 =
+                { view=MainView
+                , clock=0
+                , nav=NavDrawer.model0 initialPage pages (1276, 365) navMailbox -- TODO: fix constant width and height
+                , screenWidth = 1276 -- TODO: fix constant width and height
+                , screenHeight = 365 -- TODO: fix constant width and height
+                }
         in Signal.mergeMany
            [
-             (Signal.map ToolbarAction toolbarMailbox.signal),
+             (Signal.map ToolbarAction toolMailbox.signal),
              (Signal.map NavAction navMailbox.signal),
              (Signal.map Tick (Time.fps 60)),
+             (Signal.map WindowResize Window.dimensions),
              appMailbox.signal
            ]
-           |> Signal.foldp update ({view=MainView, page=initialPage, clock=0})
-           |> Signal.map2 (view pages navMailbox) Window.dimensions
+           |> Signal.foldp update model0
+           |> Signal.map view
 
 appMailbox : Mailbox Action
 appMailbox =
-  Signal.mailbox (CloseNavDrawer)
+  Signal.mailbox (NoAction)
 
