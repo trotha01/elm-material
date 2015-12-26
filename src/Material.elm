@@ -32,8 +32,6 @@ type Action
 
 type View
     = MainView
-    | OpenNav Time -- gives the start time, for when the navbar is opened/closed
-    | CloseNav Time -- gives the start time, for when the navbar is opened/closed
 
 type alias State = 
     { view: View
