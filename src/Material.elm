@@ -30,12 +30,8 @@ type Action
     | WindowResize (Int,Int)
     | NoAction -- TODO: is this needed?
 
-type View
-    = MainView
-
 type alias State = 
-    { view: View
-    , clock: Time
+    { clock: Time
     , nav: NavDrawer.Model
     , screenWidth: Int
     , screenHeight: Int
@@ -101,8 +97,7 @@ app pages =
             navMailbox = NavDrawer.mailbox initialPage
             toolMailbox = Toolbar.mailbox
             model0 =
-                { view=MainView
-                , clock=0
+                { clock=0
                 , nav=NavDrawer.model0 initialPage pages (1276, 365) navMailbox -- TODO: fix constant width and height
                 , screenWidth = 1276 -- TODO: fix constant width and height
                 , screenHeight = 365 -- TODO: fix constant width and height
