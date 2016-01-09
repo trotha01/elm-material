@@ -14069,10 +14069,10 @@ Elm.Material.make = function (_elm) {
    $Time = Elm.Time.make(_elm),
    $Window = Elm.Window.make(_elm);
    var _op = {};
-   var errorPage = function (contents) {
-      return {title: "Uh Oh!"
+   var errorPage = F2(function (statusCode,contents) {
+      return {title: $Basics.toString(statusCode)
              ,content: $Graphics$Element.centered($Text.fromString(contents))};
-   };
+   });
    var toolbarView = F2(function (w,title) {
       return A2($Material$Toolbar.view,w,title);
    });
@@ -14120,20 +14120,9 @@ Elm.Material.make = function (_elm) {
            state.nav)});
          default: return state;}
    });
-   var State = F5(function (a,b,c,d,e) {
-      return {view: a
-             ,clock: b
-             ,nav: c
-             ,screenWidth: d
-             ,screenHeight: e};
+   var State = F4(function (a,b,c,d) {
+      return {clock: a,nav: b,screenWidth: c,screenHeight: d};
    });
-   var CloseNav = function (a) {
-      return {ctor: "CloseNav",_0: a};
-   };
-   var OpenNav = function (a) {
-      return {ctor: "OpenNav",_0: a};
-   };
-   var MainView = {ctor: "MainView"};
    var NoAction = {ctor: "NoAction"};
    var appMailbox = $Signal.mailbox(NoAction);
    var WindowResize = function (a) {
@@ -14153,12 +14142,11 @@ Elm.Material.make = function (_elm) {
          if (_p6.ctor === "Just") {
                return _p6._0;
             } else {
-               return errorPage("No pages found!");
+               return A2(errorPage,404,"No pages found!");
             }
       }();
       var navMailbox = $Material$NavDrawer.mailbox(initialPage);
-      var model0 = {view: MainView
-                   ,clock: 0
+      var model0 = {clock: 0
                    ,nav: A4($Material$NavDrawer.model0,
                    initialPage,
                    pages,
@@ -14185,9 +14173,6 @@ Elm.Material.make = function (_elm) {
                                  ,Tick: Tick
                                  ,WindowResize: WindowResize
                                  ,NoAction: NoAction
-                                 ,MainView: MainView
-                                 ,OpenNav: OpenNav
-                                 ,CloseNav: CloseNav
                                  ,State: State
                                  ,update: update
                                  ,view: view
@@ -14214,14 +14199,14 @@ Elm.Main.make = function (_elm) {
    $Signal = Elm.Signal.make(_elm),
    $Text = Elm.Text.make(_elm);
    var _op = {};
+   var pages = _U.list([]);
+   var main = $Material.app(pages);
    var patterns = {title: "Patterns"
                   ,content: $Graphics$Element.centered($Text.fromString("patterns will go here, patterns will go here, patterns will go here"))};
    var components = {title: "Components"
                     ,content: $Graphics$Element.centered($Text.fromString("Nothin` here yet"))};
    var helloWorld = {title: "Material Design Sample"
                     ,content: $Graphics$Element.centered($Text.fromString("Hello World"))};
-   var pages = _U.list([helloWorld,components,patterns]);
-   var main = $Material.app(pages);
    return _elm.Main.values = {_op: _op
                              ,helloWorld: helloWorld
                              ,components: components

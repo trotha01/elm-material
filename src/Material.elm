@@ -76,12 +76,11 @@ toolbarView : Int -> String -> Html
 toolbarView w title =
     Toolbar.view w title
 
--- TODO: errorPage : Int -> String -> Page
--- errorPage : statusCode contents =
-errorPage : String -> Page
-errorPage contents =
+-- TODO: Remove toolbar for error page?
+errorPage : Int -> String -> Page
+errorPage statusCode contents =
   {
-    title = "Uh Oh!",
+    title = toString statusCode,
     content = centered (fromString contents)
   }
 
@@ -93,7 +92,7 @@ app pages =
                 Just page ->
                   page
                 Nothing ->
-                  errorPage "No pages found!"
+                  errorPage 404 "No pages found!"
             navMailbox = NavDrawer.mailbox initialPage
             toolMailbox = Toolbar.mailbox
             model0 =

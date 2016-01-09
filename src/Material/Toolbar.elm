@@ -107,7 +107,6 @@ floatify node =
     node
   ]
 
-
 -- SIGNALS
 
 mailbox : Signal.Mailbox Action
