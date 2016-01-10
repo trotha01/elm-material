@@ -7,6 +7,8 @@ import Html.Attributes exposing (width, height, size, style, id)
 
 type alias Page = { content:Element, title:String }
 type alias Pages = List Page
+type alias Category = { pages: List Page, name:String }
+type alias Categories = List Category
 
 {-|
   The scrim is used to fade the screen

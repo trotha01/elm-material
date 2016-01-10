@@ -12,7 +12,7 @@ import Html exposing (Html)
 
 import Material.Toolbar as Toolbar exposing (mailbox)
 import Material.NavDrawer as NavDrawer exposing (mailbox)
-import Material.Foo exposing (Page, Pages, scrim)
+import Material.Foo exposing (Page, Pages, Category, Categories, scrim)
 
 -- TODO:
 {-
@@ -97,7 +97,38 @@ app pages =
             toolMailbox = Toolbar.mailbox
             model0 =
                 { clock=0
-                , nav=NavDrawer.model0 initialPage pages (1276, 365) navMailbox -- TODO: fix constant width and height
+                , nav=NavDrawer.model0 [] initialPage pages (1276, 365) navMailbox -- TODO: fix constant width and height
+                , screenWidth = 1276 -- TODO: fix constant width and height
+                , screenHeight = 365 -- TODO: fix constant width and height
+                }
+        in Signal.mergeMany
+           [
+             (Signal.map ToolbarAction toolMailbox.signal),
+             (Signal.map NavAction navMailbox.signal),
+             (Signal.map Tick (Time.fps 60)),
+             (Signal.map WindowResize Window.dimensions),
+             appMailbox.signal
+           ]
+           |> Signal.foldp update model0
+           |> Signal.map view
+
+categoryApp : Categories -> Signal Html
+categoryApp categories =
+        let initialCategory = case (List.head categories) of
+                Just category ->
+                  category
+                Nothing ->
+                  {name="Error", pages = [errorPage 404 "No pages found!"]}
+            initialPage = case (List.head initialCategory.pages) of
+                Just page ->
+                    page
+                Nothing ->
+                  errorPage 404 "No pages found!"
+            navMailbox = NavDrawer.mailbox initialPage
+            toolMailbox = Toolbar.mailbox
+            model0 =
+                { clock=0
+                , nav=NavDrawer.model0 categories initialPage initialCategory.pages (1276, 365) navMailbox -- TODO: fix constant width and height
                 , screenWidth = 1276 -- TODO: fix constant width and height
                 , screenHeight = 365 -- TODO: fix constant width and height
                 }

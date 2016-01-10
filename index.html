@@ -13864,11 +13864,15 @@ Elm.Material.Foo.make = function (_elm) {
                                               ,{ctor: "_Tuple2",_0: "opacity",_1: "0.5"}]))]),
       _U.list([]));
    };
+   var Category = F2(function (a,b) {
+      return {pages: a,name: b};
+   });
    var Page = F2(function (a,b) {
       return {content: a,title: b};
    });
    return _elm.Material.Foo.values = {_op: _op
                                      ,Page: Page
+                                     ,Category: Category
                                      ,scrim: scrim
                                      ,divWidthPair: divWidthPair
                                      ,divHeightPair: divHeightPair
@@ -13896,7 +13900,7 @@ Elm.Material.NavDrawer.make = function (_elm) {
    $Signal = Elm.Signal.make(_elm),
    $Time = Elm.Time.make(_elm);
    var _op = {};
-   var drawerOptionHeight = 100;
+   var drawerOptionHeight = 43;
    var navDrawerWidth = 340;
    var drawerOpenAnimation = function (t) {
       return A2($Animation.duration,
@@ -13917,6 +13921,17 @@ Elm.Material.NavDrawer.make = function (_elm) {
       switch (_p0.ctor)
       {case "SelectPage": return _U.update(model,
            {page: _p0._0,drawerWidth: drawerCloseAnimation(model.clock)});
+         case "SelectCategory": var categories = A2($List.map,
+           function (_p1) {
+              var _p2 = _p1;
+              var _p4 = _p2._1;
+              var _p3 = _p2._0;
+              return _U.eq(_p3.name,_p0._0.name) ? {ctor: "_Tuple2"
+                                                   ,_0: _p3
+                                                   ,_1: $Basics.not(_p4)} : {ctor: "_Tuple2",_0: _p3,_1: _p4};
+           },
+           model.categories);
+           return _U.update(model,{categories: categories});
          case "Tick": return _U.update(model,
            {clock: model.clock + _p0._0});
          case "Open": return _U.update(model,
@@ -13928,18 +13943,27 @@ Elm.Material.NavDrawer.make = function (_elm) {
          default: return _U.update(model,
            {screenWidth: _p0._0._0,screenHeight: _p0._0._1});}
    });
-   var Model = F8(function (a,b,c,d,e,f,g,h) {
+   var initCategories = function (categories) {
+      return A2($List.map,
+      function (c) {
+         return {ctor: "_Tuple2",_0: c,_1: false};
+      },
+      categories);
+   };
+   var Model = F9(function (a,b,c,d,e,f,g,h,i) {
       return {screenWidth: a
              ,screenHeight: b
              ,drawerWidth: c
-             ,page: d
-             ,pages: e
-             ,mailbox: f
-             ,start: g
-             ,clock: h};
+             ,categories: d
+             ,page: e
+             ,pages: f
+             ,mailbox: g
+             ,start: h
+             ,clock: i};
    });
-   var initialize = F7(function (w,
+   var initialize = F8(function (w,
    h,
+   categories,
    page,
    pages,
    mailbox,
@@ -13950,19 +13974,28 @@ Elm.Material.NavDrawer.make = function (_elm) {
       A2($Animation.to,
       0,
       A2($Animation.from,0,$Animation.animation(start))));
-      return A8(Model,
+      return A9(Model,
       w,
       h,
       widthAnimation,
+      initCategories(categories),
       page,
       pages,
       mailbox,
       start,
       clock);
    });
-   var model0 = F4(function (page,pages,_p1,mailbox) {
-      var _p2 = _p1;
-      return A7(initialize,_p2._0,_p2._1,page,pages,mailbox,0,0);
+   var model0 = F5(function (categories,page,pages,_p5,mailbox) {
+      var _p6 = _p5;
+      return A8(initialize,
+      _p6._0,
+      _p6._1,
+      categories,
+      page,
+      pages,
+      mailbox,
+      0,
+      0);
    });
    var WindowResize = function (a) {
       return {ctor: "WindowResize",_0: a};
@@ -13971,24 +14004,44 @@ Elm.Material.NavDrawer.make = function (_elm) {
    var Close = function (a) {    return {ctor: "Close",_0: a};};
    var Open = function (a) {    return {ctor: "Open",_0: a};};
    var Tick = function (a) {    return {ctor: "Tick",_0: a};};
+   var SelectCategory = function (a) {
+      return {ctor: "SelectCategory",_0: a};
+   };
    var SelectPage = function (a) {
       return {ctor: "SelectPage",_0: a};
    };
    var drawerOption = F2(function (address,page) {
       return A2($Html.div,
-      _U.list([$Html$Attributes.id("drawerOption")
+      _U.list([$Html$Attributes.$class("drawerOption")
               ,A2($Html$Events.onClick,address,SelectPage(page))
               ,$Html$Attributes.style(_U.list([{ctor: "_Tuple2"
                                                ,_0: "cursor"
                                                ,_1: "pointer"}
                                               ,$Material$Foo.divWidthPair(navDrawerWidth)
                                               ,$Material$Foo.divHeightPair(drawerOptionHeight)]))]),
-      _U.list([A2($Html.h3,
-      _U.list([]),
-      _U.list([$Html.text(page.title)]))]));
+      _U.list([$Html.text(page.title)]));
    });
    var drawerOptions = F2(function (address,pages) {
       return A2($List.map,drawerOption(address),pages);
+   });
+   var categoryDrawerOptions = F2(function (address,_p7) {
+      var _p8 = _p7;
+      var _p9 = _p8._0;
+      var pages = _p8._1 ? _p9.pages : _U.list([]);
+      return A2($Html.div,
+      _U.list([$Html$Attributes.$class("category")
+              ,A2($Html$Events.onClick,address,SelectCategory(_p9))
+              ,$Html$Attributes.style(_U.list([{ctor: "_Tuple2"
+                                               ,_0: "cursor"
+                                               ,_1: "pointer"}]))]),
+      A2($List._op["::"],
+      A2($Html.h3,_U.list([]),_U.list([$Html.text(_p9.name)])),
+      A2(drawerOptions,address,pages)));
+   });
+   var categoryDrawers = F2(function (address,categories) {
+      return A2($List.map,
+      categoryDrawerOptions(address),
+      categories);
    });
    var view = function (model) {
       var pageScrim = A2($Html.div,
@@ -14018,7 +14071,7 @@ Elm.Material.NavDrawer.make = function (_elm) {
                                                ,_0: "left"
                                                ,_1: A2($Basics._op["++"],$Basics.toString(drawerOffset),"px")}
                                               ,{ctor: "_Tuple2",_0: "z-index",_1: "100"}]))]),
-      A2(drawerOptions,model.mailbox.address,model.pages));
+      A2(categoryDrawers,model.mailbox.address,model.categories));
       return _U.cmp(drawerOffset + navDrawerWidth,
       0) > 0 ? A2($Html.div,
       _U.list([]),
@@ -14031,6 +14084,7 @@ Elm.Material.NavDrawer.make = function (_elm) {
    };
    return _elm.Material.NavDrawer.values = {_op: _op
                                            ,SelectPage: SelectPage
+                                           ,SelectCategory: SelectCategory
                                            ,Tick: Tick
                                            ,Open: Open
                                            ,Close: Close
@@ -14038,6 +14092,7 @@ Elm.Material.NavDrawer.make = function (_elm) {
                                            ,WindowResize: WindowResize
                                            ,Model: Model
                                            ,initialize: initialize
+                                           ,initCategories: initCategories
                                            ,model0: model0
                                            ,navDrawerWidth: navDrawerWidth
                                            ,drawerOptionHeight: drawerOptionHeight
@@ -14045,6 +14100,8 @@ Elm.Material.NavDrawer.make = function (_elm) {
                                            ,drawerOpenAnimation: drawerOpenAnimation
                                            ,drawerCloseAnimation: drawerCloseAnimation
                                            ,view: view
+                                           ,categoryDrawers: categoryDrawers
+                                           ,categoryDrawerOptions: categoryDrawerOptions
                                            ,drawerOptions: drawerOptions
                                            ,drawerOption: drawerOption
                                            ,mailbox: mailbox};
@@ -14147,9 +14204,52 @@ Elm.Material.make = function (_elm) {
       }();
       var navMailbox = $Material$NavDrawer.mailbox(initialPage);
       var model0 = {clock: 0
-                   ,nav: A4($Material$NavDrawer.model0,
+                   ,nav: A5($Material$NavDrawer.model0,
+                   _U.list([]),
                    initialPage,
                    pages,
+                   {ctor: "_Tuple2",_0: 1276,_1: 365},
+                   navMailbox)
+                   ,screenWidth: 1276
+                   ,screenHeight: 365};
+      return A2($Signal.map,
+      view,
+      A3($Signal.foldp,
+      update,
+      model0,
+      $Signal.mergeMany(_U.list([A2($Signal.map,
+                                ToolbarAction,
+                                toolMailbox.signal)
+                                ,A2($Signal.map,NavAction,navMailbox.signal)
+                                ,A2($Signal.map,Tick,$Time.fps(60))
+                                ,A2($Signal.map,WindowResize,$Window.dimensions)
+                                ,appMailbox.signal]))));
+   };
+   var categoryApp = function (categories) {
+      var toolMailbox = $Material$Toolbar.mailbox;
+      var initialCategory = function () {
+         var _p7 = $List.head(categories);
+         if (_p7.ctor === "Just") {
+               return _p7._0;
+            } else {
+               return {name: "Error"
+                      ,pages: _U.list([A2(errorPage,404,"No pages found!")])};
+            }
+      }();
+      var initialPage = function () {
+         var _p8 = $List.head(initialCategory.pages);
+         if (_p8.ctor === "Just") {
+               return _p8._0;
+            } else {
+               return A2(errorPage,404,"No pages found!");
+            }
+      }();
+      var navMailbox = $Material$NavDrawer.mailbox(initialPage);
+      var model0 = {clock: 0
+                   ,nav: A5($Material$NavDrawer.model0,
+                   categories,
+                   initialPage,
+                   initialCategory.pages,
                    {ctor: "_Tuple2",_0: 1276,_1: 365},
                    navMailbox)
                    ,screenWidth: 1276
@@ -14180,6 +14280,7 @@ Elm.Material.make = function (_elm) {
                                  ,toolbarView: toolbarView
                                  ,errorPage: errorPage
                                  ,app: app
+                                 ,categoryApp: categoryApp
                                  ,appMailbox: appMailbox};
 };Elm.Main = Elm.Main || {};
 Elm.Main.make = function (_elm) {
@@ -14199,18 +14300,32 @@ Elm.Main.make = function (_elm) {
    $Signal = Elm.Signal.make(_elm),
    $Text = Elm.Text.make(_elm);
    var _op = {};
-   var pages = _U.list([]);
-   var main = $Material.app(pages);
-   var patterns = {title: "Patterns"
-                  ,content: $Graphics$Element.centered($Text.fromString("patterns will go here, patterns will go here, patterns will go here"))};
-   var components = {title: "Components"
-                    ,content: $Graphics$Element.centered($Text.fromString("Nothin` here yet"))};
+   var fingerprint = {title: "fingerprint"
+                     ,content: $Graphics$Element.centered($Text.fromString("fingerprint stuff here"))};
+   var gestures = {title: "gestures"
+                  ,content: $Graphics$Element.centered($Text.fromString("Coming soon! (I hope)"))};
+   var patterns = {name: "patterns"
+                  ,pages: _U.list([gestures,fingerprint])};
+   var sliders = {title: "sliders"
+                 ,content: $Graphics$Element.centered($Text.fromString("Nothin` here yet either"))};
+   var buttons = {title: "Buttons"
+                 ,content: $Graphics$Element.centered($Text.fromString("Nothin` here yet"))};
+   var components = {name: "components"
+                    ,pages: _U.list([buttons,sliders])};
+   var categories = _U.list([components,patterns]);
+   var main = $Material.categoryApp(categories);
    var helloWorld = {title: "Material Design Sample"
                     ,content: $Graphics$Element.centered($Text.fromString("Hello World"))};
+   var pages = _U.list([helloWorld,buttons,sliders]);
    return _elm.Main.values = {_op: _op
                              ,helloWorld: helloWorld
+                             ,buttons: buttons
+                             ,sliders: sliders
+                             ,gestures: gestures
+                             ,fingerprint: fingerprint
+                             ,pages: pages
                              ,components: components
                              ,patterns: patterns
-                             ,pages: pages
+                             ,categories: categories
                              ,main: main};
 };</script></head><body><script type="text/javascript">Elm.fullscreen(Elm.Main)</script></body></html>

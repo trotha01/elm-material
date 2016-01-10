@@ -1,14 +1,14 @@
 module Material.NavDrawer where
 
 import Color exposing (white)
-import Material.Foo exposing (Page, Pages, scrim, divWidth, divHeight, divWidthPair, divHeightPair )
+import Material.Foo exposing (Category, Categories, Page, Pages, scrim, divWidth, divHeight, divWidthPair, divHeightPair )
 import Text exposing (fromString)
 import Signal exposing (Mailbox)
 import Time exposing (Time)
 import Easing exposing (easeInBounce, easeInElastic)
 import Animation exposing (..)
 import Html exposing (Html)
-import Html.Attributes exposing (width, height, size, style, id)
+import Html.Attributes exposing (width, height, size, style, id, class)
 import Html.Events exposing (onClick)
 import Flex
 import Debug
@@ -17,6 +17,7 @@ import Debug
 
 type Action
     = SelectPage Page
+    | SelectCategory Category
     | Tick Time
     | Open Time
     | Close Time
@@ -29,6 +30,7 @@ type alias Model =
     { screenWidth: Int
     , screenHeight: Int
     , drawerWidth: Animation
+    , categories: NavCategories
     , page: Page
     , pages: Pages
     , mailbox: Mailbox Action
@@ -36,16 +38,24 @@ type alias Model =
     , clock: Time
     }
 
-initialize : Int -> Int -> Page -> Pages -> Mailbox Action -> Time -> Time -> Model
-initialize w h page pages mailbox start clock =
-    let widthAnimation = (animation start |> from 0 |> to 0 |> duration 400)
-     in Model w h widthAnimation page pages mailbox start clock
+-- The list of categories and whether or not to display the pages
+type alias NavCategories = List (Category, Bool)
 
-model0 : Page -> Pages -> (Int, Int) -> Mailbox Action -> Model
-model0 page pages (w, h) mailbox = initialize w h page pages mailbox 0 0
+initialize : Int -> Int -> Categories -> Page -> Pages -> Mailbox Action -> Time -> Time -> Model
+initialize w h categories page pages mailbox start clock =
+    let widthAnimation = (animation start |> from 0 |> to 0 |> duration 400)
+     in Model w h widthAnimation (initCategories categories) page pages mailbox start clock
+
+initCategories : Categories -> NavCategories
+initCategories categories =
+    List.map (\c -> (c, False)) categories
+
+model0 : Categories -> Page -> Pages -> (Int, Int) -> Mailbox Action -> Model
+model0 categories page pages (w, h) mailbox = initialize w h categories page pages mailbox 0 0
 
 navDrawerWidth = 340
-drawerOptionHeight = 100
+-- drawerOptionHeight = 100
+drawerOptionHeight = 43
 
 -- UPDATE
 
@@ -54,6 +64,10 @@ step action model =
     case action of
         SelectPage page ->
             {model | page = page, drawerWidth = drawerCloseAnimation model.clock }
+        SelectCategory category ->
+            let categories = List.map (\(c, v) -> if c.name == category.name then (c, not v) else (c,v)) model.categories
+             in {model | categories = categories }
+            -- TODO: toggle page display
         Tick t ->
             {model | clock = model.clock + t}
         Open t ->
@@ -105,7 +119,8 @@ view model =
                     , ("z-index", "100")
                     ]
                 ]
-               (drawerOptions model.mailbox.address model.pages)
+               (categoryDrawers model.mailbox.address model.categories)
+               -- (drawerOptions model.mailbox.address model.pages)
 
    in if drawerOffset + navDrawerWidth > 0 then
         Html.div []
@@ -116,6 +131,26 @@ view model =
         Html.div [] []
 
 -- Nav Drawer View
+categoryDrawers : Signal.Address Action -> NavCategories -> List Html
+categoryDrawers address categories =
+    List.map (categoryDrawerOptions address) categories
+
+categoryDrawerOptions : Signal.Address Action -> (Category, Bool) -> Html
+categoryDrawerOptions address (category, pagesVisible) =
+    let pages =
+        if pagesVisible then
+           category.pages
+        else []
+     in Html.div [
+        class "category"
+        , onClick address (SelectCategory category)
+        , style
+            [ ("cursor","pointer")
+            ]
+    ]
+    ((Html.h3 [] [Html.text category.name]) ::
+        (drawerOptions address pages))
+
 drawerOptions : Signal.Address Action -> Pages -> List Html
 drawerOptions address pages =
     (List.map (drawerOption address) pages)
@@ -123,7 +158,7 @@ drawerOptions address pages =
 drawerOption : Signal.Address Action -> Page -> Html
 drawerOption address page =
     Html.div
-        [ id "drawerOption"
+        [ class "drawerOption"
         , onClick address (SelectPage page)
         , style
             [ ("cursor","pointer")
@@ -131,7 +166,7 @@ drawerOption address page =
             , (divHeightPair drawerOptionHeight)
             ]
         ]
-        [ Html.h3 [] [Html.text page.title] ]
+        [ Html.text page.title ]
 
 -- SIGNALS
 
