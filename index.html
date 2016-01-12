@@ -14066,20 +14066,17 @@ Elm.Material.NavDrawer.make = function (_elm) {
       var _p8 = _p7;
       var _p9 = _p8._0;
       var pages = _p9.pages;
-      return A2($Html.dl,
-      _U.list([$Html$Attributes.$class("category")
-              ,A2($Html$Events.onClick,address,SelectCategory(_p9))
-              ,$Html$Attributes.style(_U.list([{ctor: "_Tuple2"
-                                               ,_0: "cursor"
-                                               ,_1: "pointer"}]))]),
-      A2($List._op["::"],
+      return A2($List._op["::"],
       A2($Html.dt,
       _U.list([$Html$Attributes.$class("categoryTitle")
+              ,A2($Html$Events.onClick,address,SelectCategory(_p9))
               ,$Html$Attributes.style(_U.list([{ctor: "_Tuple2"
                                                ,_0: "position"
                                                ,_1: "relative"}
                                               ,{ctor: "_Tuple2",_0: "z-index",_1: "2"}
-                                              ,{ctor: "_Tuple2",_0: "background-color",_1: "white"}]))]),
+                                              ,{ctor: "_Tuple2",_0: "background-color",_1: "white"}
+                                              ,{ctor: "_Tuple2",_0: "cursor",_1: "pointer"}
+                                              ,{ctor: "_Tuple2",_0: "padding",_1: "15px 0px 15px 22px"}]))]),
       _U.list([$Html.text(_p9.name)])),
       _U.list([A2($Html.div,
       _U.list([$Html$Attributes.$class("subpages")
@@ -14088,18 +14085,20 @@ Elm.Material.NavDrawer.make = function (_elm) {
                                                ,_1: "relative"}
                                               ,{ctor: "_Tuple2",_0: "z-index",_1: "1"}
                                               ,{ctor: "_Tuple2",_0: "background-color",_1: "white"}
-                                              ,{ctor: "_Tuple2",_0: "overflow",_1: "hidden"}
-                                              ,{ctor: "_Tuple2"
+                                              ,{ctor: "_Tuple2",_0: "overflow",_1: "hidden"}]))]),
+      _U.list([A2($Html.div,
+      _U.list([$Html$Attributes.$class("subpageContainer")
+              ,$Html$Attributes.style(_U.list([{ctor: "_Tuple2"
                                                ,_0: "margin-top"
                                                ,_1: A2($Basics._op["++"],
                                                $Basics.toString(A2($Animation.animate,clock,_p8._2)),
                                                "px")}]))]),
-      A2(drawerOptions,address,pages))])));
+      A2(drawerOptions,address,pages))]))]));
    });
    var categoryDrawers = F3(function (address,clock,categories) {
-      return A2($List.map,
+      return $List.concat(A2($List.map,
       A2(categoryDrawerOptions,address,clock),
-      categories);
+      categories));
    });
    var view = function (model) {
       var pageScrim = A2($Html.div,
@@ -14129,10 +14128,15 @@ Elm.Material.NavDrawer.make = function (_elm) {
                                                ,_0: "left"
                                                ,_1: A2($Basics._op["++"],$Basics.toString(drawerOffset),"px")}
                                               ,{ctor: "_Tuple2",_0: "z-index",_1: "100"}]))]),
+      _U.list([A2($Html.dl,
+      _U.list([$Html$Attributes.$class("category")
+              ,$Html$Attributes.style(_U.list([{ctor: "_Tuple2"
+                                               ,_0: "margin"
+                                               ,_1: "0px"}]))]),
       A3(categoryDrawers,
       model.mailbox.address,
       model.clock,
-      model.categories));
+      model.categories))]));
       return _U.cmp(drawerOffset + navDrawerWidth,
       0) > 0 ? A2($Html.div,
       _U.list([]),

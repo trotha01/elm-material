@@ -139,7 +139,13 @@ view model =
                     , ("z-index", "100")
                     ]
                 ]
-               (categoryDrawers model.mailbox.address model.clock model.categories)
+                [ Html.dl
+                    [ class "category"
+                    , style
+                        [ ("margin", "0px") ]
+                    ]
+                    (categoryDrawers model.mailbox.address model.clock model.categories)
+                ]
                -- (drawerOptions model.mailbox.address model.pages)
 
    in if drawerOffset + navDrawerWidth > 0 then
@@ -153,9 +159,9 @@ view model =
 -- Nav Drawer View
 categoryDrawers : Signal.Address Action -> Time -> NavCategories -> List Html
 categoryDrawers address clock categories =
-    List.map (categoryDrawerOptions address clock) categories
+    List.concat (List.map (categoryDrawerOptions address clock) categories)
 
-categoryDrawerOptions : Signal.Address Action -> Time -> (Category, Bool, Animation) -> Html
+categoryDrawerOptions : Signal.Address Action -> Time -> (Category, Bool, Animation) -> List Html
 categoryDrawerOptions address clock (category, pagesVisible, subpageHeight) =
     let pages = category.pages
         {-
@@ -163,19 +169,15 @@ categoryDrawerOptions address clock (category, pagesVisible, subpageHeight) =
            category.pages
         else []
         -}
-     in Html.dl [
-        class "category"
-        , onClick address (SelectCategory category)
-        , style
-            [ ("cursor","pointer")
-            ]
-        ]
-        ((Html.dt
+     in ((Html.dt
             [ class "categoryTitle"
+            , onClick address (SelectCategory category)
             , style
               [ ("position", "relative")
               , ("z-index", "2")
               , ("background-color", "white")
+              , ("cursor","pointer")
+              , ("padding","15px 0px 15px 22px")
               ]
             ]
             [Html.text category.name])
@@ -186,10 +188,16 @@ categoryDrawerOptions address clock (category, pagesVisible, subpageHeight) =
               , ("z-index", "1")
               , ("background-color", "white")
               , ("overflow", "hidden")
-              , ("margin-top", (toString (animate clock subpageHeight)) ++ "px")
+              ]
+            ]
+            [ Html.div
+            [ class "subpageContainer"
+            , style
+              [ ("margin-top", (toString (animate clock subpageHeight)) ++ "px")
               ]
             ]
             (drawerOptions address pages)
+            ]
         ])
 
 drawerOptions : Signal.Address Action -> Pages -> List Html
