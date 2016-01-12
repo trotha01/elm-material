@@ -163,13 +163,7 @@ categoryDrawers address clock categories =
 
 categoryDrawerOptions : Signal.Address Action -> Time -> (Category, Bool, Animation) -> List Html
 categoryDrawerOptions address clock (category, pagesVisible, subpageHeight) =
-    let pages = category.pages
-        {-
-        if pagesVisible then
-           category.pages
-        else []
-        -}
-     in ((Html.dt
+     ((Html.dt
             [ class "categoryTitle"
             , onClick address (SelectCategory category)
             , style
@@ -178,6 +172,7 @@ categoryDrawerOptions address clock (category, pagesVisible, subpageHeight) =
               , ("background-color", "white")
               , ("cursor","pointer")
               , ("padding","15px 0px 15px 22px")
+              , ("font-weight","700")
               ]
             ]
             [Html.text category.name])
@@ -196,7 +191,7 @@ categoryDrawerOptions address clock (category, pagesVisible, subpageHeight) =
               [ ("margin-top", (toString (animate clock subpageHeight)) ++ "px")
               ]
             ]
-            (drawerOptions address pages)
+            (drawerOptions address category.pages)
             ]
         ])
 

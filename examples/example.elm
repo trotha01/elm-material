@@ -14,10 +14,10 @@ import Material.Foo exposing (Page, Pages)
 
 -- MODEL
 
-helloWorld : Page
-helloWorld =
-  { title = "Material Design Sample"
-  , content = centered (fromString "Hello World")
+introduction : Page
+introduction =
+  { title = "Introduction"
+  , content = centered (fromString "Google Material Design with Elm - Work In Progress")
   }
 
 buttons : Page
@@ -45,12 +45,13 @@ fingerprint =
   }
 
 pages : Pages
-pages = [ helloWorld, buttons, sliders ]
+pages = [ buttons, sliders ]
 
-components = { name="components", pages=[buttons, sliders] }
-patterns = { name="patterns", pages=[gestures, fingerprint] }
+introductionCategory = { name="Material Design", pages=[introduction] }
+components = { name="Components", pages=[buttons, sliders] }
+patterns = { name="Patterns", pages=[gestures, fingerprint] }
 
-categories = [ components, patterns ]
+categories = [ introductionCategory, components, patterns ]
 
 main : Signal Html
 main =

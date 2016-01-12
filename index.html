@@ -14372,26 +14372,31 @@ Elm.Main.make = function (_elm) {
                      ,content: $Graphics$Element.centered($Text.fromString("fingerprint stuff here"))};
    var gestures = {title: "gestures"
                   ,content: $Graphics$Element.centered($Text.fromString("Coming soon! (I hope)"))};
-   var patterns = {name: "patterns"
+   var patterns = {name: "Patterns"
                   ,pages: _U.list([gestures,fingerprint])};
    var sliders = {title: "sliders"
                  ,content: $Graphics$Element.centered($Text.fromString("Nothin` here yet either"))};
    var buttons = {title: "Buttons"
                  ,content: $Graphics$Element.centered($Text.fromString("Nothin` here yet"))};
-   var components = {name: "components"
+   var pages = _U.list([buttons,sliders]);
+   var components = {name: "Components"
                     ,pages: _U.list([buttons,sliders])};
-   var categories = _U.list([components,patterns]);
+   var introduction = {title: "Introduction"
+                      ,content: $Graphics$Element.centered($Text.fromString("Google Material Design with Elm - Work In Progress"))};
+   var introductionCategory = {name: "Material Design"
+                              ,pages: _U.list([introduction])};
+   var categories = _U.list([introductionCategory
+                            ,components
+                            ,patterns]);
    var main = $Material.categoryApp(categories);
-   var helloWorld = {title: "Material Design Sample"
-                    ,content: $Graphics$Element.centered($Text.fromString("Hello World"))};
-   var pages = _U.list([helloWorld,buttons,sliders]);
    return _elm.Main.values = {_op: _op
-                             ,helloWorld: helloWorld
+                             ,introduction: introduction
                              ,buttons: buttons
                              ,sliders: sliders
                              ,gestures: gestures
                              ,fingerprint: fingerprint
                              ,pages: pages
+                             ,introductionCategory: introductionCategory
                              ,components: components
                              ,patterns: patterns
                              ,categories: categories
