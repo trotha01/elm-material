@@ -13901,7 +13901,7 @@ Elm.Material.NavDrawer.make = function (_elm) {
    $Time = Elm.Time.make(_elm);
    var _op = {};
    var drawerOptionHeight = 43;
-   var navDrawerWidth = 340;
+   var navDrawerWidth = 239;
    var drawerOpenAnimation = function (t) {
       return A2($Animation.duration,
       400,
@@ -14386,7 +14386,10 @@ Elm.Main.make = function (_elm) {
                       $Graphics$Element.right,
                       _U.list([A2($Graphics$Element.link,
                               "https://www.google.com/design/spec/material-design/introduction.html",
-                              $Graphics$Element.centered($Text.fromString("Google Material Design with Elm")))
+                              $Graphics$Element.centered($Text.fromString("Google Material Design ")))
+                              ,A2($Graphics$Element.link,
+                              "http://elm-lang.org/",
+                              $Graphics$Element.centered($Text.fromString("with Elm")))
                               ,$Graphics$Element.centered($Text.fromString(" - "))
                               ,A2($Graphics$Element.link,
                               "https://github.com/trotha01/elm-material",

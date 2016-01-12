@@ -59,7 +59,7 @@ categorySubpageHeight category =
 model0 : Categories -> Page -> Pages -> (Int, Int) -> Mailbox Action -> Model
 model0 categories page pages (w, h) mailbox = initialize w h categories page pages mailbox 0 0
 
-navDrawerWidth = 340
+navDrawerWidth = 239
 drawerOptionHeight = 43
 
 -- UPDATE
