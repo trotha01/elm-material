@@ -13916,6 +13916,25 @@ Elm.Material.NavDrawer.make = function (_elm) {
       0,
       A2($Animation.from,navDrawerWidth,$Animation.animation(t))));
    };
+   var categorySubpageHeight = function (category) {
+      return $Basics.toFloat($List.length(category.pages) * drawerOptionHeight + 37);
+   };
+   var subpageOpenAnimation = F2(function (category,t) {
+      return A2($Animation.duration,
+      400,
+      A2($Animation.to,
+      0,
+      A2($Animation.from,
+      0 - categorySubpageHeight(category),
+      $Animation.animation(t))));
+   });
+   var subpageCloseAnimation = F2(function (category,t) {
+      return A2($Animation.duration,
+      400,
+      A2($Animation.to,
+      0 - categorySubpageHeight(category),
+      A2($Animation.from,0,$Animation.animation(t))));
+   });
    var step = F2(function (action,model) {
       var _p0 = action;
       switch (_p0.ctor)
@@ -13926,9 +13945,25 @@ Elm.Material.NavDrawer.make = function (_elm) {
               var _p2 = _p1;
               var _p4 = _p2._1;
               var _p3 = _p2._0;
-              return _U.eq(_p3.name,_p0._0.name) ? {ctor: "_Tuple2"
-                                                   ,_0: _p3
-                                                   ,_1: $Basics.not(_p4)} : {ctor: "_Tuple2",_0: _p3,_1: _p4};
+              return _U.eq(_p3.name,_p0._0.name) ? _U.eq(_p4,
+              true) ? A2($Debug.log,
+              "close",
+              {ctor: "_Tuple3"
+              ,_0: _p3
+              ,_1: $Basics.not(_p4)
+              ,_2: A2(subpageCloseAnimation,
+              _p3,
+              A2($Debug.log,"clock",model.clock))}) : A2($Debug.log,
+              "open",
+              {ctor: "_Tuple3"
+              ,_0: _p3
+              ,_1: $Basics.not(_p4)
+              ,_2: A2(subpageOpenAnimation,
+              _p3,
+              A2($Debug.log,"clock",model.clock))}) : {ctor: "_Tuple3"
+                                                      ,_0: _p3
+                                                      ,_1: _p4
+                                                      ,_2: _p2._2};
            },
            model.categories);
            return _U.update(model,{categories: categories});
@@ -13946,7 +13981,10 @@ Elm.Material.NavDrawer.make = function (_elm) {
    var initCategories = function (categories) {
       return A2($List.map,
       function (c) {
-         return {ctor: "_Tuple2",_0: c,_1: false};
+         return {ctor: "_Tuple3"
+                ,_0: c
+                ,_1: false
+                ,_2: A2(subpageCloseAnimation,c,0)};
       },
       categories);
    };
@@ -14011,7 +14049,7 @@ Elm.Material.NavDrawer.make = function (_elm) {
       return {ctor: "SelectPage",_0: a};
    };
    var drawerOption = F2(function (address,page) {
-      return A2($Html.div,
+      return A2($Html.dd,
       _U.list([$Html$Attributes.$class("drawerOption")
               ,A2($Html$Events.onClick,address,SelectPage(page))
               ,$Html$Attributes.style(_U.list([{ctor: "_Tuple2"
@@ -14024,23 +14062,43 @@ Elm.Material.NavDrawer.make = function (_elm) {
    var drawerOptions = F2(function (address,pages) {
       return A2($List.map,drawerOption(address),pages);
    });
-   var categoryDrawerOptions = F2(function (address,_p7) {
+   var categoryDrawerOptions = F3(function (address,clock,_p7) {
       var _p8 = _p7;
       var _p9 = _p8._0;
-      var pages = _p8._1 ? _p9.pages : _U.list([]);
-      return A2($Html.div,
+      var pages = _p9.pages;
+      return A2($Html.dl,
       _U.list([$Html$Attributes.$class("category")
               ,A2($Html$Events.onClick,address,SelectCategory(_p9))
               ,$Html$Attributes.style(_U.list([{ctor: "_Tuple2"
                                                ,_0: "cursor"
                                                ,_1: "pointer"}]))]),
       A2($List._op["::"],
-      A2($Html.h3,_U.list([]),_U.list([$Html.text(_p9.name)])),
-      A2(drawerOptions,address,pages)));
+      A2($Html.dt,
+      _U.list([$Html$Attributes.$class("categoryTitle")
+              ,$Html$Attributes.style(_U.list([{ctor: "_Tuple2"
+                                               ,_0: "position"
+                                               ,_1: "relative"}
+                                              ,{ctor: "_Tuple2",_0: "z-index",_1: "2"}
+                                              ,{ctor: "_Tuple2",_0: "background-color",_1: "white"}]))]),
+      _U.list([$Html.text(_p9.name)])),
+      _U.list([A2($Html.div,
+      _U.list([$Html$Attributes.$class("subpages")
+              ,$Html$Attributes.style(_U.list([{ctor: "_Tuple2"
+                                               ,_0: "position"
+                                               ,_1: "relative"}
+                                              ,{ctor: "_Tuple2",_0: "z-index",_1: "1"}
+                                              ,{ctor: "_Tuple2",_0: "background-color",_1: "white"}
+                                              ,{ctor: "_Tuple2",_0: "overflow",_1: "hidden"}
+                                              ,{ctor: "_Tuple2"
+                                               ,_0: "margin-top"
+                                               ,_1: A2($Basics._op["++"],
+                                               $Basics.toString(A2($Animation.animate,clock,_p8._2)),
+                                               "px")}]))]),
+      A2(drawerOptions,address,pages))])));
    });
-   var categoryDrawers = F2(function (address,categories) {
+   var categoryDrawers = F3(function (address,clock,categories) {
       return A2($List.map,
-      categoryDrawerOptions(address),
+      A2(categoryDrawerOptions,address,clock),
       categories);
    });
    var view = function (model) {
@@ -14071,7 +14129,10 @@ Elm.Material.NavDrawer.make = function (_elm) {
                                                ,_0: "left"
                                                ,_1: A2($Basics._op["++"],$Basics.toString(drawerOffset),"px")}
                                               ,{ctor: "_Tuple2",_0: "z-index",_1: "100"}]))]),
-      A2(categoryDrawers,model.mailbox.address,model.categories));
+      A3(categoryDrawers,
+      model.mailbox.address,
+      model.clock,
+      model.categories));
       return _U.cmp(drawerOffset + navDrawerWidth,
       0) > 0 ? A2($Html.div,
       _U.list([]),
@@ -14093,12 +14154,15 @@ Elm.Material.NavDrawer.make = function (_elm) {
                                            ,Model: Model
                                            ,initialize: initialize
                                            ,initCategories: initCategories
+                                           ,categorySubpageHeight: categorySubpageHeight
                                            ,model0: model0
                                            ,navDrawerWidth: navDrawerWidth
                                            ,drawerOptionHeight: drawerOptionHeight
                                            ,step: step
                                            ,drawerOpenAnimation: drawerOpenAnimation
                                            ,drawerCloseAnimation: drawerCloseAnimation
+                                           ,subpageOpenAnimation: subpageOpenAnimation
+                                           ,subpageCloseAnimation: subpageCloseAnimation
                                            ,view: view
                                            ,categoryDrawers: categoryDrawers
                                            ,categoryDrawerOptions: categoryDrawerOptions

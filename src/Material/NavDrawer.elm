@@ -39,7 +39,8 @@ type alias Model =
     }
 
 -- The list of categories and whether or not to display the pages
-type alias NavCategories = List (Category, Bool)
+-- Plus the height of the pages
+type alias NavCategories = List (Category, Bool, Animation)
 
 initialize : Int -> Int -> Categories -> Page -> Pages -> Mailbox Action -> Time -> Time -> Model
 initialize w h categories page pages mailbox start clock =
@@ -48,13 +49,17 @@ initialize w h categories page pages mailbox start clock =
 
 initCategories : Categories -> NavCategories
 initCategories categories =
-    List.map (\c -> (c, False)) categories
+    List.map (\c -> (c, False, subpageCloseAnimation c 0)) categories
+
+categorySubpageHeight : Category -> Float
+categorySubpageHeight category =
+    toFloat (((List.length category.pages) * drawerOptionHeight) + 37)
+    -- TODO: use constant for magic 37
 
 model0 : Categories -> Page -> Pages -> (Int, Int) -> Mailbox Action -> Model
 model0 categories page pages (w, h) mailbox = initialize w h categories page pages mailbox 0 0
 
 navDrawerWidth = 340
--- drawerOptionHeight = 100
 drawerOptionHeight = 43
 
 -- UPDATE
@@ -65,9 +70,17 @@ step action model =
         SelectPage page ->
             {model | page = page, drawerWidth = drawerCloseAnimation model.clock }
         SelectCategory category ->
-            let categories = List.map (\(c, v) -> if c.name == category.name then (c, not v) else (c,v)) model.categories
+            let categories =
+                List.map (\(c, v, a) ->
+                    if c.name == category.name then
+                       if v == True then
+                           Debug.log "close" (c, not v, subpageCloseAnimation c (Debug.log "clock" model.clock))
+                       else
+                           Debug.log "open" (c, not v, subpageOpenAnimation c (Debug.log "clock" model.clock))
+                    else
+                       (c,v,a))
+                    model.categories
              in {model | categories = categories }
-            -- TODO: toggle page display
         Tick t ->
             {model | clock = model.clock + t}
         Open t ->
@@ -79,11 +92,18 @@ step action model =
         WindowResize (w, h) ->
             {model | screenWidth = w, screenHeight = h }
 
+-- TODO: change width to offset for clarity
 drawerOpenAnimation : Time -> Animation
 drawerOpenAnimation t = (animation t |> from 0 |> to navDrawerWidth |> duration 400)
 
 drawerCloseAnimation : Time -> Animation
 drawerCloseAnimation t = (animation t |> from navDrawerWidth |> to 0 |> duration 400)
+
+subpageOpenAnimation : Category -> Time -> Animation
+subpageOpenAnimation category t = (animation t |> from (0 - (categorySubpageHeight category)) |> to 0 |> duration 400)
+
+subpageCloseAnimation : Category -> Time -> Animation
+subpageCloseAnimation category t = (animation t |> from 0 |> to (0 - (categorySubpageHeight category)) |> duration 400)
 
 -- VIEW
 
@@ -119,7 +139,7 @@ view model =
                     , ("z-index", "100")
                     ]
                 ]
-               (categoryDrawers model.mailbox.address model.categories)
+               (categoryDrawers model.mailbox.address model.clock model.categories)
                -- (drawerOptions model.mailbox.address model.pages)
 
    in if drawerOffset + navDrawerWidth > 0 then
@@ -131,25 +151,46 @@ view model =
         Html.div [] []
 
 -- Nav Drawer View
-categoryDrawers : Signal.Address Action -> NavCategories -> List Html
-categoryDrawers address categories =
-    List.map (categoryDrawerOptions address) categories
+categoryDrawers : Signal.Address Action -> Time -> NavCategories -> List Html
+categoryDrawers address clock categories =
+    List.map (categoryDrawerOptions address clock) categories
 
-categoryDrawerOptions : Signal.Address Action -> (Category, Bool) -> Html
-categoryDrawerOptions address (category, pagesVisible) =
-    let pages =
+categoryDrawerOptions : Signal.Address Action -> Time -> (Category, Bool, Animation) -> Html
+categoryDrawerOptions address clock (category, pagesVisible, subpageHeight) =
+    let pages = category.pages
+        {-
         if pagesVisible then
            category.pages
         else []
-     in Html.div [
+        -}
+     in Html.dl [
         class "category"
         , onClick address (SelectCategory category)
         , style
             [ ("cursor","pointer")
             ]
-    ]
-    ((Html.h3 [] [Html.text category.name]) ::
-        (drawerOptions address pages))
+        ]
+        ((Html.dt
+            [ class "categoryTitle"
+            , style
+              [ ("position", "relative")
+              , ("z-index", "2")
+              , ("background-color", "white")
+              ]
+            ]
+            [Html.text category.name])
+         :: [ Html.div
+            [ class "subpages"
+            , style
+              [ ("position", "relative")
+              , ("z-index", "1")
+              , ("background-color", "white")
+              , ("overflow", "hidden")
+              , ("margin-top", (toString (animate clock subpageHeight)) ++ "px")
+              ]
+            ]
+            (drawerOptions address pages)
+        ])
 
 drawerOptions : Signal.Address Action -> Pages -> List Html
 drawerOptions address pages =
@@ -157,7 +198,7 @@ drawerOptions address pages =
 
 drawerOption : Signal.Address Action -> Page -> Html
 drawerOption address page =
-    Html.div
+    Html.dd
         [ class "drawerOption"
         , onClick address (SelectPage page)
         , style
