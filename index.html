@@ -14065,7 +14065,6 @@ Elm.Material.NavDrawer.make = function (_elm) {
    var categoryDrawerOptions = F3(function (address,clock,_p7) {
       var _p8 = _p7;
       var _p9 = _p8._0;
-      var pages = _p9.pages;
       return A2($List._op["::"],
       A2($Html.dt,
       _U.list([$Html$Attributes.$class("categoryTitle")
@@ -14076,7 +14075,8 @@ Elm.Material.NavDrawer.make = function (_elm) {
                                               ,{ctor: "_Tuple2",_0: "z-index",_1: "2"}
                                               ,{ctor: "_Tuple2",_0: "background-color",_1: "white"}
                                               ,{ctor: "_Tuple2",_0: "cursor",_1: "pointer"}
-                                              ,{ctor: "_Tuple2",_0: "padding",_1: "15px 0px 15px 22px"}]))]),
+                                              ,{ctor: "_Tuple2",_0: "padding",_1: "15px 0px 15px 22px"}
+                                              ,{ctor: "_Tuple2",_0: "font-weight",_1: "700"}]))]),
       _U.list([$Html.text(_p9.name)])),
       _U.list([A2($Html.div,
       _U.list([$Html$Attributes.$class("subpages")
@@ -14093,7 +14093,7 @@ Elm.Material.NavDrawer.make = function (_elm) {
                                                ,_1: A2($Basics._op["++"],
                                                $Basics.toString(A2($Animation.animate,clock,_p8._2)),
                                                "px")}]))]),
-      A2(drawerOptions,address,pages))]))]));
+      A2(drawerOptions,address,_p9.pages))]))]));
    });
    var categoryDrawers = F3(function (address,clock,categories) {
       return $List.concat(A2($List.map,
@@ -14382,7 +14382,15 @@ Elm.Main.make = function (_elm) {
    var components = {name: "Components"
                     ,pages: _U.list([buttons,sliders])};
    var introduction = {title: "Introduction"
-                      ,content: $Graphics$Element.centered($Text.fromString("Google Material Design with Elm - Work In Progress"))};
+                      ,content: A2($Graphics$Element.flow,
+                      $Graphics$Element.right,
+                      _U.list([A2($Graphics$Element.link,
+                              "https://www.google.com/design/spec/material-design/introduction.html",
+                              $Graphics$Element.centered($Text.fromString("Google Material Design with Elm")))
+                              ,$Graphics$Element.centered($Text.fromString(" - "))
+                              ,A2($Graphics$Element.link,
+                              "https://github.com/trotha01/elm-material",
+                              $Graphics$Element.centered($Text.fromString("Work In Progress")))]))};
    var introductionCategory = {name: "Material Design"
                               ,pages: _U.list([introduction])};
    var categories = _U.list([introductionCategory

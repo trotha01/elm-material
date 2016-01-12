@@ -2,7 +2,7 @@ import Window
 import Color exposing (green, white, black)
 import Graphics.Element exposing (Element)
 import Graphics.Element exposing
-  (Element, centered, middle, down, layers, container, color, flow, right, spacer)
+  (Element, centered, middle, down, layers, container, color, flow, right, spacer, show, link)
 import Graphics.Input exposing (clickable)
 import Text exposing (fromString)
 import Maybe exposing (Maybe)
@@ -17,7 +17,18 @@ import Material.Foo exposing (Page, Pages)
 introduction : Page
 introduction =
   { title = "Introduction"
-  , content = centered (fromString "Google Material Design with Elm - Work In Progress")
+  , content = (flow right
+      [ (link
+            "https://www.google.com/design/spec/material-design/introduction.html"
+            (centered (fromString "Google Material Design ")))
+      , (link
+            "http://elm-lang.org/"
+            (centered (fromString "with Elm")))
+      , centered (fromString " - ")
+      , (link
+            "https://github.com/trotha01/elm-material"
+            (centered (fromString "Work In Progress")))
+      ])
   }
 
 buttons : Page
